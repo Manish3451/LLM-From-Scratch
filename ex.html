@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Gradient Descent Optimizers: From SGD to Adam</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        // MathJax Configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        /* Custom Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .accent-blue { color: #00d4ff; }
+        .accent-purple { color: #b794f6; }
+        .accent-green { color: #4ade80; }
+        .bg-accent-blue { background-color: #00d4ff; }
+        .border-accent-blue { border-color: #00d4ff; }
+        .bg-dark-card { 
+            background: rgba(30, 30, 46, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .border-dark { border-color: #333; }
+        
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(183, 148, 246, 0.1) 0%, transparent 50%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+        
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-50px, -50px); }
+        }
+        
+        /* Navbar styles */
+        .navbar {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 14, 39, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #b794f6);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Neural Network Animation Container */
+        #neuralNetCanvas {
+            width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 60px rgba(0, 212, 255, 0.1);
+        }
+
+        /* Code block styles */
+        pre {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        code {
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Collapsible details element */
+        details > summary {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(183, 148, 246, 0.1) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        details > summary::before {
+            content: '▶';
+            display: inline-block;
+            transition: transform 0.3s ease;
+            color: #00d4ff;
+        }
+        
+        details[open] > summary::before {
+            transform: rotate(90deg);
+        }
+        
+        details > summary:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(183, 148, 246, 0.15) 100%);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        /* Fade-in animations */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Enhanced Table styles */
+        .custom-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 2px;
+            background: linear-gradient(135deg, #00d4ff 0%, #b794f6 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .table-cell {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .table-cell:hover {
+            background: linear-gradient(135deg, #1e1e32 0%, #1a2544 100%);
+            transform: scale(1.02);
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(183, 148, 246, 0.2) 100%);
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00d4ff;
+        }
+        
+        @media (max-width: 768px) {
+            .custom-table {
+                grid-template-columns: 1fr;
+            }
+            .table-header { display: none; }
+            .table-cell {
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 12px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .table-cell::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: #00d4ff;
+            }
+        }
+
+        /* Explanation box */
+        .explanation-box {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(183, 148, 246, 0.05) 100%);
+            border-left: 4px solid #00d4ff;
+            padding: 24px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .explanation-box:hover {
+            transform: translateX(5px);
+            box-shadow: 0 12px 48px rgba(0, 212, 255, 0.15);
+        }
+        
+        /* Chart containers */
+        .chart-container {
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(26, 26, 46, 0.6) 100%);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.2);
+        }
+        
+        /* Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Section cards */
+        .section-card {
+            background: rgba(30, 30, 46, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #00d4ff 0%, #b794f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0e27;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #00d4ff 0%, #b794f6 100%);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #0099cc 0%, #9370db 100%);
+        }
+
+        /* Loading animation */
+        .loading-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d4ff;
+            animation: loadingDot 1.4s infinite ease-in-out both;
+        }
+        
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes loadingDot {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+
+    <!-- Header/Navigation -->
+    <header class="navbar fixed top-0 left-0 right-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold gradient-text">Optimizer Deep Dive</h1>
+                <span class="badge mt-2">Machine Learning</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#intro" class="nav-link hover:text-accent-blue transition-colors font-medium">Setup</a>
+                <a href="#sgd" class="nav-link hover:text-accent-blue transition-colors font-medium">SGD</a>
+                <a href="#decay" class="nav-link hover:text-accent-blue transition-colors font-medium">Decay</a>
+                <a href="#momentum" class="nav-link hover:text-accent-blue transition-colors font-medium">Momentum</a>
+                <a href="#adagrad" class="nav-link hover:text-accent-blue transition-colors font-medium">AdaGrad</a>
+                <a href="#rmsprop" class="nav-link hover:text-accent-blue transition-colors font-medium">RMSProp</a>
+                <a href="#adam" class="nav-link hover:text-accent-blue transition-colors font-medium">Adam</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 pt-32 pb-12">
+
+        <!-- Hero Section with Neural Network Animation -->
+        <section class="text-center my-20 fade-in-section">
+            <div class="mb-6">
+                <span class="text-sm font-semibold tracking-wider uppercase text-accent-blue">Interactive Learning</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-4">
+                Understanding <span class="gradient-text">Gradient Descent</span>
+            </h1>
+            <h2 class="text-3xl md:text-4xl font-light mt-2 mb-6 text-gray-300">Optimizers: From SGD to Adam</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-400 leading-relaxed">
+                Dive deep into the mathematics and intuition behind modern optimization algorithms. 
+                Watch them converge in real-time with interactive visualizations.
+            </p>
+            
+            <!-- Neural Network Animation Canvas -->
+            <div class="mt-12 max-w-5xl mx-auto">
+                <canvas id="neuralNetCanvas"></canvas>
+                <p class="mt-4 text-sm text-gray-500 flex items-center justify-center gap-2">
+                    <span class="loading-dot"></span>
+                    <span class="loading-dot"></span>
+                    <span class="loading-dot"></span>
+                    <span class="ml-2">Gradient Descent in Action</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Introduction Section -->
+        <section id="intro" class="my-20 py-12 fade-in-section">
+            <div class="section-card">
+                <h2 class="text-4xl font-bold mb-6 gradient-text">Introduction & Setup</h2>
+                <p class="text-lg text-gray-300 mb-8 leading-relaxed">
+                    Training neural networks efficiently requires more than just basic gradient descent. Modern optimizers like SGD with momentum, AdaGrad, RMSProp, and Adam act as intelligent navigation systems, helping your model converge faster and more reliably. Let's explore how each optimizer works and when to use them.
+                </p>
+                
+                <h3 class="text-3xl font-semibold mt-12 mb-6 flex items-center gap-3">
+                    <span class="w-2 h-10 bg-gradient-to-b from-accent-blue to-accent-purple rounded-full"></span>
+                    Generating Synthetic Data
+                </h3>
+                <p class="text-gray-300 mb-6 leading-relaxed">
+                    We'll create a toy linear regression dataset: $y = 3x + 7 + \text{noise}$. Our goal is to recover the weights $w$ and bias $b$ by minimizing Mean Squared Error (MSE):
+                </p>
+                
+                <div class="bg-dark-card p-6 rounded-lg my-6 border border-accent-blue">
+                    <p class="text-center text-lg font-mono">
+                        $$ \mathcal{L} = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}_i - y_i)^2 \quad \text{where} \quad \hat{y} = Xw + b $$
+                    </p>
+                </div>
+                
+                <p class="text-gray-300 mb-6 leading-relaxed">The gradients with respect to our parameters are:</p>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-dark-card p-6 rounded-lg border border-accent-purple">
+                        <p class="text-center font-mono">
+                            $$ \frac{\partial \mathcal{L}}{\partial w} = \frac{2}{m} X^T (\hat{y} - y) $$
+                        </p>
+                    </div>
+                    <div class="bg-dark-card p-6 rounded-lg border border-accent-green">
+                        <p class="text-center font-mono">
+                            $$ \frac{\partial \mathcal{L}}{\partial b} = \frac{2}{m} \sum_{i=1}^{m} (\hat{y}_i - y_i) $$
+                        </p>
+                    </div>
+                </div>
+
+                <details class="mb-8">
+                    <summary>💻 View Python Setup Code</summary>
+                    <div class="mt-4 relative">
+<pre><code class="language-python"># Import necessary libraries for numerical computations and plotting
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Set a random seed to ensure reproducibility of results across runs
+np.random.seed(42)
+
+# Generate 100 random input features X from a standard normal distribution (mean=0, std=1)
+X = np.random.randn(100, 1)
+
+# Create target values y using the linear model y = 3*X + 7 + Gaussian noise (std=0.5)
+# This simulates real-world data with some variability
+y = 3 * X + 7 + np.random.randn(100, 1) * 0.5
+
+# Visualize the dataset as a scatter plot for quick inspection
+plt.figure(figsize=(10, 6))
+plt.scatter(X, y, alpha=0.6, s=50, c='#00d4ff', edgecolors='white', linewidth=0.5)
+plt.plot(X, 3*X + 7, 'r--', linewidth=2, label='True Line: y = 3x + 7')
+plt.xlabel('X', fontsize=12)
+plt.ylabel('y', fontsize=12)
+plt.title('Synthetic Linear Data with Gaussian Noise', fontsize=14, fontweight='bold')
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </details>
+                
+                <!-- Visual Data Representation -->
+                <div class="mt-8 chart-container">
+                    <h4 class="text-xl font-semibold mb-4 text-center">📊 Synthetic Dataset Visualization</h4>
+                    <canvas id="datasetChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Content Sections -->
+        <div class="space-y-20">
+            
+            <!-- Vanilla SGD -->
+            <section id="sgd" class="section-card fade-in-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-2xl font-bold">1</div>
+                    <h2 class="text-4xl font-bold gradient-text">Vanilla Stochastic Gradient Descent (SGD)</h2>
+                </div>
+                <p class="text-gray-300 mb-6 text-lg">The foundation of all optimizers: simple, elegant, and effective for convex problems.</p>
+
+                <div class="explanation-box">
+                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
+                    <p class="text-gray-200 mb-6 leading-relaxed">
+                        Imagine hiking down a mountain blindfolded, using only the slope beneath your feet to decide each step. SGD takes consistent steps in the steepest downhill direction, scaled by a learning rate (step size).
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Dead simple to implement</li>
+                                <li>Minimal memory overhead</li>
+                                <li>Works great on convex problems</li>
+                                <li>Provides full control over learning</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Oscillates in narrow valleys</li>
+                                <li>Slow on plateaus</li>
+                                <li>Highly sensitive to learning rate</li>
+                                <li>No adaptive behavior</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <h4 class="text-xl font-semibold mb-4">📈 Loss Convergence</h4>
+                        <canvas id="sgdChart"></canvas>
+                    </div>
+                    <div class="relative">
+<pre><code class="language-python"># Vanilla SGD Implementation
+def train_sgd(X, y, lr=0.01, epochs=100):
+    """
+    Train linear regression using vanilla SGD
+    
+    Args:
+        X: Input features (m x 1)
+        y: Target values (m x 1)
+        lr: Learning rate (step size)
+        epochs: Number of training iterations
+    """
+    # Initialize parameters randomly
+    w = np.random.randn(1, 1)
+    b = np.random.randn(1)
+    losses = []
+    m = len(y)
+    
+    for epoch in range(epochs):
+        # Forward pass: compute predictions
+        y_pred = X @ w + b
+        
+        # Compute MSE loss
+        loss = np.mean((y_pred - y) ** 2)
+        losses.append(loss)
+        
+        # Backward pass: compute gradients
+        dw = (2 / m) * X.T @ (y_pred - y)
+        db = (2 / m) * np.sum(y_pred - y)
+        
+        # Update parameters (gradient descent step)
+        w -= lr * dw
+        b -= lr * db
+    
+    return w, b, losses
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SGD with Decay -->
+            <section id="decay" class="section-card fade-in-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-green to-accent-blue flex items-center justify-center text-2xl font-bold">2</div>
+                    <h2 class="text-4xl font-bold gradient-text">SGD with Learning Rate Decay</h2>
+                </div>
+                <p class="text-gray-300 mb-6 text-lg">Gradually reducing the learning rate prevents overshooting and enables finer convergence.</p>
+
+                <div class="explanation-box">
+                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
+                    <p class="text-gray-200 mb-6 leading-relaxed">
+                        Start with bold strides when far from the goal, then slow down as you approach it. This prevents bouncing around the minimum and allows precise fine-tuning.
+                    </p>
+                    <div class="bg-dark-card p-4 rounded-lg border border-accent-blue mb-6">
+                        <p class="text-center font-mono text-lg">
+                            $$ \text{lr}_t = \frac{\text{lr}_0}{1 + \text{decay} \cdot t} $$
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Smoother convergence trajectory</li>
+                                <li>Reduces late-stage oscillations</li>
+                                <li>Often reaches lower final loss</li>
+                                <li>Simple to implement</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Requires tuning initial lr and decay</li>
+                                <li>Too aggressive decay stalls early</li>
+                                <li>Not adaptive to problem geometry</li>
+                                <li>May decay too quickly</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <h4 class="text-xl font-semibold mb-4">📉 Loss with Decay Schedule</h4>
+                        <canvas id="decayChart"></canvas>
+                    </div>
+                    <div class="relative">
+<pre><code class="language-python"># SGD with Inverse Time Decay
+def train_sgd_decay(X, y, lr_initial=0.1, 
+                    decay=0.05, epochs=100):
+    """
+    SGD with time-based learning rate decay
+    
+    The learning rate decreases inversely with time:
+    lr(t) = lr_0 / (1 + decay * t)
+    """
+    w, b = np.random.randn(1,1), np.random.randn(1)
+    losses, m = [], len(y)
+    
+    for epoch in range(epochs):
+        # Compute decayed learning rate
+        lr = lr_initial / (1 + decay * epoch)
+        
+        # Forward pass
+        y_pred = X @ w + b
+        losses.append(np.mean((y_pred - y)**2))
+        
+        # Compute gradients
+        dw = (2/m) * X.T @ (y_pred - y)
+        db = (2/m) * np.sum(y_pred - y)
+        
+        # Update with decayed learning rate
+        w -= lr * dw
+        b -= lr * db
+    
+    return w, b, losses
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Momentum -->
+            <section id="momentum" class="section-card fade-in-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-2xl font-bold">3</div>
+                    <h2 class="text-4xl font-bold gradient-text">SGD with Momentum</h2>
+                </div>
+                <p class="text-gray-300 mb-6 text-lg">Accelerate learning by accumulating velocity in consistent gradient directions.</p>
+
+                <div class="explanation-box">
+                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
+                    <p class="text-gray-200 mb-6 leading-relaxed">
+                        Like a ball rolling downhill, momentum builds speed in the descent direction and carries inertia through flat regions. This helps escape shallow local minima and reduces zigzagging in ravine-like loss surfaces.
+                    </p>
+                    <div class="bg-dark-card p-4 rounded-lg border border-accent-purple mb-6">
+                        <p class="text-center font-mono text-lg">
+                            $$ v_t = \beta v_{t-1} + (1 - \beta) \nabla_\theta \mathcal{L} $$
+                            $$ \theta_{t+1} = \theta_t - \alpha v_t $$
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Faster convergence than vanilla SGD</li>
+                                <li>Dampens oscillations significantly</li>
+                                <li>Escapes shallow local minima</li>
+                                <li>Works great with noisy gradients</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Can overshoot if β too high</li>
+                                <li>Requires momentum tuning</li>
+                                <li>May miss sharp minima</li>
+                                <li>Extra hyperparameter to manage</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <h4 class="text-xl font-semibold mb-4">🚀 Effect of Momentum Values</h4>
+                        <canvas id="momentumChart"></canvas>
+                    </div>
+                    <div class="relative">
+<pre><code class="language-python"># SGD with Momentum Implementation
+def train_sgd_momentum(X, y, lr=0.01, 
+                       momentum=0.9, epochs=100):
+    """
+    SGD with momentum - accumulates velocity
+    
+    Args:
+        momentum: Friction factor (0-1)
+                 Higher = more inertia
+    """
+    w, b = np.random.randn(1,1), np.random.randn(1)
+    losses, m = [], len(y)
+    
+    # Initialize velocity vectors
+    v_w, v_b = np.zeros_like(w), np.zeros_like(b)
+
+    for epoch in range(epochs):
+        # Forward pass
+        y_pred = X @ w + b
+        losses.append(np.mean((y_pred - y)**2))
+        
+        # Compute raw gradients
+        dw = (2/m) * X.T @ (y_pred - y)
+        db = (2/m) * np.sum(y_pred - y)
+
+        # Update velocities (exponential moving average)
+        v_w = momentum * v_w + (1-momentum) * dw
+        v_b = momentum * v_b + (1-momentum) * db
+        
+        # Update parameters using velocity
+        w -= lr * v_w
+        b -= lr * v_b
+
+    return w, b, losses
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- AdaGrad -->
+            <section id="adagrad" class="section-card fade-in-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl font-bold">4</div>
+                    <h2 class="text-4xl font-bold gradient-text">AdaGrad: Adaptive Gradient Algorithm</h2>
+                </div>
+                <p class="text-gray-300 mb-6 text-lg">Parameter-specific learning rates based on historical gradient information.</p>
+
+                <div class="explanation-box">
+                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
+                    <p class="text-gray-200 mb-6 leading-relaxed">
+                        Each parameter gets its own personalized learning rate. Frequently updated parameters (large historical gradients) receive smaller steps to avoid overshooting, while rare updates get larger boosts. Perfect for sparse data like text embeddings.
+                    </p>
+                    <div class="bg-dark-card p-4 rounded-lg border border-yellow-400 mb-6">
+                        <p class="text-center font-mono text-lg">
+                            $$ G_t = G_{t-1} + g_t^2 $$
+                            $$ \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{G_t + \epsilon}} g_t $$
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Adaptive per-parameter learning rates</li>
+                                <li>Excellent for sparse features</li>
+                                <li>No manual lr tuning per parameter</li>
+                                <li>Works great in NLP tasks</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Accumulator grows indefinitely</li>
+                                <li>Learning rate decays to near-zero</li>
+                                <li>Stops learning in long training</li>
+                                <li>No momentum component</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <h4 class="text-xl font-semibold mb-4">⚡ SGD vs AdaGrad Performance</h4>
+                        <canvas id="adagradChart"></canvas>
+                    </div>
+                    <div class="relative">
+<pre><code class="language-python"># AdaGrad Implementation
+def train_adagrad(X, y, lr=0.1, 
+                  epochs=100, epsilon=1e-8):
+    """
+    AdaGrad - Adaptive Gradient Algorithm
+    
+    Accumulates squared gradients to scale
+    learning rate per parameter
+    
+    Args:
+        epsilon: Small constant for numerical stability
+    """
+    w, b = np.random.randn(1,1), np.random.randn(1)
+    losses, m = [], len(y)
+    
+    # Accumulators for squared gradients
+    g_w, g_b = np.zeros_like(w), np.zeros_like(b)
+    
+    for epoch in range(epochs):
+        # Forward pass
+        y_pred = X @ w + b
+        losses.append(np.mean((y_pred - y)**2))
+        
+        # Compute gradients
+        dw = (2/m) * X.T @ (y_pred - y)
+        db = (2/m) * np.sum(y_pred - y)
+        
+        # Accumulate squared gradients
+        g_w += dw**2
+        g_b += db**2
+        
+        # Adaptive update with per-parameter lr
+        w -= (lr / (np.sqrt(g_w + epsilon))) * dw
+        b -= (lr / (np.sqrt(g_b + epsilon))) * db
+        
+    return w, b, losses
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- RMSProp -->
+            <section id="rmsprop" class="section-card fade-in-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-2xl font-bold">5</div>
+                    <h2 class="text-4xl font-bold gradient-text">RMSProp: Root Mean Square Propagation</h2>
+                </div>
+                <p class="text-gray-300 mb-6 text-lg">Fixes AdaGrad's aggressive decay using exponential moving averages.</p>
+
+                <div class="explanation-box">
+                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
+                    <p class="text-gray-200 mb-6 leading-relaxed">
+                        RMSProp uses a "leaky bucket" approach—gradually forgetting old gradients while remembering recent ones. This prevents the learning rate from decaying to zero and keeps the optimizer responsive to changing gradient landscapes, making it ideal for non-stationary objectives like RNNs.
+                    </p>
+                    <div class="bg-dark-card p-4 rounded-lg border border-green-400 mb-6">
+                        <p class="text-center font-mono text-lg">
+                            $$ E[g^2]_t = \beta E[g^2]_{t-1} + (1-\beta) g_t^2 $$
+                            $$ \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{E[g^2]_t + \epsilon}} g_t $$
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Handles non-stationary objectives</li>
+                                <li>Learning rate doesn't vanish</li>
+                                <li>Works well with RNNs</li>
+                                <li>Balances responsiveness and stability</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Requires β tuning</li>
+                                <li>Can still decay with low β</li>
+                                <li>No momentum component</li>
+                                <li>Sensitive to initialization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <h4 class="text-xl font-semibold mb-4">📊 Adaptive Optimizers Comparison</h4>
+                        <canvas id="rmspropChart"></canvas>
+                    </div>
+                    <div class="relative">
+<pre><code class="language-python"># RMSProp Implementation
+def train_rmsprop(X, y, lr=0.01, beta=0.9, 
+                  epochs=100, epsilon=1e-8):
+    """
+    RMSProp - Root Mean Square Propagation
+    
+    Uses exponential moving average of squared
+    gradients instead of cumulative sum
+    
+    Args:
+        beta: Decay rate for moving average
+              (typically 0.9 or 0.99)
+    """
+    w, b = np.random.randn(1,1), np.random.randn(1)
+    losses, m = [], len(y)
+    
+    # Moving averages for squared gradients
+    g_w, g_b = np.zeros_like(w), np.zeros_like(b)
+    
+    for epoch in range(epochs):
+        # Forward pass
+        y_pred = X @ w + b
+        losses.append(np.mean((y_pred - y)**2))
+        
+        # Compute gradients
+        dw = (2/m) * X.T @ (y_pred - y)
+        db = (2/m) * np.sum(y_pred - y)
+        
+        # Update moving average (exponential decay)
+        g_w = beta * g_w + (1-beta) * (dw**2)
+        g_b = beta * g_b + (1-beta) * (db**2)
+        
+        # Adaptive update using RMS
+        w -= (lr / (np.sqrt(g_w + epsilon))) * dw
+        b -= (lr / (np.sqrt(g_b + epsilon))) * db
+        
+    return w, b, losses
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Adam -->
+            <section id="adam" class="section-card fade-in-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-2xl font-bold">6</div>
+                    <h2 class="text-4xl font-bold gradient-text">Adam: The King of Optimizers</h2>
+                </div>
+                <p class="text-gray-300 mb-6 text-lg">Combines momentum and RMSProp with bias correction for state-of-the-art performance.</p>
+
+                <div class="explanation-box">
+                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
+                    <p class="text-gray-200 mb-6 leading-relaxed">
+                        Adam (Adaptive Moment Estimation) is the Swiss Army knife of optimizers. It tracks both the mean (first moment) and variance (second moment) of gradients, combines momentum's directional acceleration with RMSProp's adaptive scaling, and adds bias correction to fix initial underestimation. Result: robust, fast convergence with sensible defaults.
+                    </p>
+                    <div class="bg-dark-card p-4 rounded-lg border border-pink-500 mb-6">
+                        <p class="text-center font-mono text-sm">
+                            $$ m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t, \quad v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2 $$
+                            $$ \hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t} $$
+                            $$ \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t $$
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>Best-in-class default optimizer</li>
+                                <li>Combines momentum + adaptation</li>
+                                <li>Bias-corrected for early epochs</li>
+                                <li>Works out-of-box on most problems</li>
+                                <li>Fast and stable convergence</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                                <li>More hyperparameters to tune</li>
+                                <li>Higher memory overhead</li>
+                                <li>May generalize worse than SGD</li>
+                                <li>Can converge to sharp minima</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <h4 class="text-xl font-semibold mb-4">👑 All Optimizers: Final Showdown</h4>
+                        <canvas id="adamChart"></canvas>
+                    </div>
+                    <div class="relative">
+<pre><code class="language-python"># Adam Optimizer Implementation
+def train_adam(X, y, lr=0.001, epochs=100,
+               beta1=0.9, beta2=0.999, epsilon=1e-8):
+    """
+    Adam - Adaptive Moment Estimation
+    
+    Combines momentum (first moment) and 
+    RMSProp (second moment) with bias correction
+    
+    Args:
+        beta1: Decay for first moment (momentum)
+        beta2: Decay for second moment (RMSProp)
+    
+    Default hyperparameters work well in practice!
+    """
+    w, b = np.random.randn(1,1), np.random.randn(1)
+    losses, m = [], len(y)
+    
+    # Initialize moment estimates
+    m_w, v_w = np.zeros_like(w), np.zeros_like(w)
+    m_b, v_b = np.zeros_like(b), np.zeros_like(b)
+    
+    for t in range(1, epochs + 1):
+        # Forward pass
+        y_pred = X @ w + b
+        losses.append(np.mean((y_pred - y)**2))
+        
+        # Compute gradients
+        dw = (2/m) * X.T @ (y_pred - y)
+        db = (2/m) * np.sum(y_pred - y)
+        
+        # Update biased first moment (momentum)
+        m_w = beta1 * m_w + (1 - beta1) * dw
+        m_b = beta1 * m_b + (1 - beta1) * db
+        
+        # Update biased second moment (RMSProp)
+        v_w = beta2 * v_w + (1 - beta2) * (dw ** 2)
+        v_b = beta2 * v_b + (1 - beta2) * (db ** 2)
+        
+        # Bias correction (crucial for early epochs)
+        m_w_hat = m_w / (1 - beta1 ** t)
+        v_w_hat = v_w / (1 - beta2 ** t)
+        m_b_hat = m_b / (1 - beta1 ** t)
+        v_b_hat = v_b / (1 - beta2 ** t)
+        
+        # Adam update rule
+        w -= lr * m_w_hat / (np.sqrt(v_w_hat) + epsilon)
+        b -= lr * m_b_hat / (np.sqrt(v_b_hat) + epsilon)
+        
+    return w, b, losses
+</code><button class="copy-btn">Copy</button></pre>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Key Takeaways -->
+        <section class="my-20 py-12 fade-in-section">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-bold gradient-text mb-4">Key Takeaways</h2>
+                <p class="text-xl text-gray-400">When to use which optimizer</p>
+            </div>
+            
+            <div class="custom-table">
+                <!-- Header -->
+                <div class="table-cell table-header">Optimizer</div>
+                <div class="table-cell table-header">Strengths</div>
+                <div class="table-cell table-header">Weaknesses</div>
+                <div class="table-cell table-header">Best For</div>
+                
+                <!-- SGD -->
+                <div class="table-cell" data-label="Optimizer">
+                    <div class="font-bold text-accent-blue">SGD</div>
+                </div>
+                <div class="table-cell" data-label="Strengths">Simple, lightweight, full control</div>
+                <div class="table-cell" data-label="Weaknesses">Slow convergence, oscillations</div>
+                <div class="table-cell" data-label="Best For">Quick prototypes, convex problems</div>
+                
+                <!-- SGD + Decay -->
+                <div class="table-cell" data-label="Optimizer">
+                    <div class="font-bold text-accent-green">SGD + Decay</div>
+                </div>
+                <div class="table-cell" data-label="Strengths">Prevents overshooting, smoother</div>
+                <div class="table-cell" data-label="Weaknesses">Needs tuning, can stall early</div>
+                <div class="table-cell" data-label="Best For">Long training runs</div>
+                
+                <!-- Momentum -->
+                <div class="table-cell" data-label="Optimizer">
+                    <div class="font-bold text-accent-purple">Momentum</div>
+                </div>
+                <div class="table-cell" data-label="Strengths">Faster in ravines, dampens oscillations</div>
+                <div class="table-cell" data-label="Weaknesses">Can overshoot, extra hyperparameter</div>
+                <div class="table-cell" data-label="Best For">Noisy gradients, deep networks</div>
+                
+                <!-- AdaGrad -->
+                <div class="table-cell" data-label="Optimizer">
+                    <div class="font-bold" style="color: #fbbf24;">AdaGrad</div>
+                </div>
+                <div class="table-cell" data-label="Strengths">Handles sparse data, adaptive per-param</div>
+                <div class="table-cell" data-label="Weaknesses">Learning rate decays to zero</div>
+                <div class="table-cell" data-label="Best For">NLP with rare words, sparse features</div>
+                
+                <!-- RMSProp -->
+                <div class="table-cell" data-label="Optimizer">
+                    <div class="font-bold" style="color: #4ade80;">RMSProp</div>
+                </div>
+                <div class="table-cell" data-label="Strengths">Non-monotonic decay, responsive</div>
+                <div class="table-cell" data-label="Weaknesses">Sensitive to β, no momentum</div>
+                <div class="table-cell" data-label="Best For">RNNs, non-stationary objectives</div>
+                
+                <!-- Adam -->
+                <div class="table-cell" data-label="Optimizer">
+                    <div class="font-bold" style="color: #ec4899;">Adam</div>
+                </div>
+                <div class="table-cell" data-label="Strengths">Best defaults, combines momentum + adaptation</div>
+                <div class="table-cell" data-label="Weaknesses">More params, may generalize worse</div>
+                <div class="table-cell" data-label="Best For">Most modern models (CNNs, Transformers)</div>
+            </div>
+            
+            <div class="mt-12 p-8 bg-dark-card rounded-xl border-2 border-accent-blue text-center">
+                <p class="text-2xl font-semibold mb-4">💡 Pro Tips</p>
+                <div class="grid md:grid-cols-3 gap-6 text-left">
+                    <div class="p-4 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-lg">
+                        <p class="font-bold mb-2 text-accent-blue">🚀 Quick Start</p>
+                        <p class="text-sm text-gray-300">Start with Adam (lr=0.001). It works 90% of the time.</p>
+                    </div>
+                    <div class="p-4 bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-lg">
+                        <p class="font-bold mb-2 text-accent-purple">🎯 Fine-Tuning</p>
+                        <p class="text-sm text-gray-300">Use SGD with momentum for better generalization on final training.</p>
+                    </div>
+                    <div class="p-4 bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-lg">
+                        <p class="font-bold mb-2 text-accent-green">⚡ Always</p>
+                        <p class="text-sm text-gray-300">Add gradient clipping to prevent exploding gradients!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 border-t border-dark">
+        <p class="text-gray-500 mb-2">&copy; 2025 Optimizer Deep Dive. Crafted with ❤️ for ML enthusiasts.</p>
+        <p class="text-sm text-gray-600">Scroll up to explore more visualizations</p>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- SYNTHETIC DATA ---
+    const syntheticData = [
+        { x: 0.4967141530112327, y: 7.782457088008492 },
+        { x: -0.13826430117118466, y: 6.374884435103766 },
+        { x: 0.6476885381006925, y: 8.771708356038694 },
+        { x: 1.5230298564080254, y: 11.167950934613266 },
+        { x: -0.23415337472333597, y: 6.2168970199969875 },
+        { x: -0.23413695694918055, y: 6.4996145575597275 },
+        { x: 1.5792128155073915, y: 12.68073139712744 },
+        { x: 0.7674347291529088, y: 9.389593093874646 },
+        { x: -0.4694743859349521, y: 5.720352037556526 },
+        { x: 0.5425600435859647, y: 8.590457172874812 },
+        { x: -0.46341769281246226, y: 4.650361313913092 },
+        { x: -0.46572975357025687, y: 5.589553801564621 },
+        { x: 0.24196227156603412, y: 7.756001919668615 },
+        { x: -1.913280244657798, y: 2.49178032226925 },
+        { x: -1.7249178325130328, y: 1.72906602007034 },
+        { x: -0.5622875292409727, y: 5.463911083443889 },
+        { x: -1.0128311203344238, y: 3.9441507541441068 },
+        { x: 0.3142473325952739, y: 7.358402978976056 },
+        { x: -0.9080240755212109, y: 4.8473391806938775 },
+        { x: -1.4123037013352915, y: 3.139055412337513 },
+        { x: 1.465648768921554, y: 11.792462280286184 },
+        { x: -0.22577630048653566, y: 5.867977371143024 },
+        { x: 0.06752820468792384, y: 7.903981769531821 },
+        { x: -1.4247481862134568, y: 2.024829909963489 },
+        { x: -0.5443827245251827, y: 5.660280373324587 },
+        { x: 0.11092258970986608, y: 8.427995582034587 },
+        { x: -1.1509935774223028, y: 3.0517511051677473 },
+        { x: 0.37569801834567196, y: 7.8439451902356305 },
+        { x: -0.600638689918805, y: 5.247909612787406 },
+        { x: -0.2916937497932768, y: 5.87318092356207 },
+        { x: -0.6017066122293969, y: 4.419548447778744 },
+        { x: 1.8522781845089378, y: 12.591116040929826 },
+        { x: -0.013497224737933921, y: 6.4283564689231465 },
+        { x: -1.0577109289559004, y: 4.06366342844989 },
+        { x: 0.822544912103189, y: 9.007922619192666 },
+        { x: -1.2208436499710222, y: 4.112436252595703 },
+        { x: 0.2088635950047554, y: 7.234964138846148 },
+        { x: -1.9596701238797756, y: 0.9599588702578357 },
+        { x: -1.3281860488984305, y: 3.4222004619895436 },
+        { x: 0.19686123586912352, y: 6.975151549390393 },
+        { x: 0.7384665799954104, y: 9.329129707288297 },
+        { x: 0.1713682811899705, y: 8.167676220711126 },
+        { x: -0.11564828238824053, y: 5.849313535554665 },
+        { x: -0.3011036955892888, y: 6.189005842498286 },
+        { x: -1.4785219903674274, y: 2.69437542602193 },
+        { x: -0.7198442083947086, y: 5.23137881070453 },
+        { x: -0.4606387709597875, y: 4.999608331681596 },
+        { x: 1.0571222262189157, y: 9.51113837211461 },
+        { x: 0.3436182895684614, y: 8.291825651513834 },
+        { x: -1.763040155362734, y: 1.8593718705283917 },
+        { x: 0.324083969394795, y: 8.097498333357322 },
+        { x: -0.38508228041631654, y: 6.017977263499538 },
+        { x: -0.6769220003059587, y: 4.629221638292878 },
+        { x: 0.6116762888408679, y: 8.951155715103106 },
+        { x: 1.030999522495951, y: 10.239534804137195 },
+        { x: 0.9312801191161986, y: 9.436664648335412 },
+        { x: -0.8392175232226385, y: 5.415234685904463 },
+        { x: -0.3092123758512146, y: 6.30927933290225 },
+        { x: 0.33126343140356396, y: 7.398138545609368 },
+        { x: 0.9755451271223592, y: 10.254912185683992 },
+        { x: -0.47917423784528995, y: 5.0751364513504695 },
+        { x: -0.18565897666381712, y: 6.836565371879774 },
+        { x: -1.1063349740060282, y: 4.260292867485617 },
+        { x: -1.1962066240806708, y: 3.001038968582132 },
+        { x: 0.812525822394198, y: 9.919265531804754 },
+        { x: 1.356240028570823, y: 11.275110549180718 },
+        { x: -0.07201012158033385, y: 7.194999715256243 },
+        { x: 1.0035328978920242, y: 10.958995185003047 },
+        { x: 0.36163602504763415, y: 7.962214017141467 },
+        { x: -0.6451197546051243, y: 4.687772654005882 },
+        { x: 0.36139560550841393, y: 7.63942960171248 },
+        { x: 1.5380365664659692, y: 11.20620455691519 },
+        { x: -0.03582603910995154, y: 6.853971027963094 },
+        { x: 1.5646436558140062, y: 11.86450695485034 },
+        { x: -2.6197451040897444, y: -0.7208899126042232 },
+        { x: 0.8219025043752238, y: 9.879299137643685 },
+        { x: 0.08704706823817122, y: 7.267642150653468 },
+        { x: -0.29900735046586746, y: 6.829744987181056 },
+        { x: 0.0917607765355023, y: 7.1429539129875295 },
+        { x: -1.9875689146008928, y: 2.3973778394921306 },
+        { x: -0.21967188783751193, y: 6.653818010369967 },
+        { x: 0.3571125715117464, y: 7.642758936327098 },
+        { x: 1.477894044741516, y: 10.89823588519399 },
+        { x: -0.5182702182736474, y: 5.68642555280065 },
+        { x: -0.8084936028931876, y: 4.462787798657512 },
+        { x: -0.5017570435845365, y: 5.851729116292437 },
+        { x: 0.9154021177020741, y: 9.982825165392995 },
+        { x: 0.32875110965968446, y: 7.949838872650617 },
+        { x: -0.5297602037670388, y: 4.987322529664681 },
+        { x: 0.5132674331133561, y: 7.782378686997135 },
+        { x: 0.09707754934804039, y: 7.067975172010611 },
+        { x: 0.9686449905328892, y: 10.334134368760404 },
+        { x: -0.7020530938773524, y: 5.000887590433045 },
+        { x: -0.3276621465977682, y: 5.394144170850701 },
+        { x: -0.39210815313215763, y: 5.910266003529118 },
+        { x: -1.4635149481321186, y: 2.8021138454680625 },
+        { x: 0.29612027706457605, y: 7.446432113093161 },
+        { x: 0.26105527217988933, y: 7.860028369512432 },
+        { x: 0.00511345664246089, y: 7.044444729150383 },
+        { x: -0.23458713337514692, y: 5.724753450959248 }
+    ];
+
+    const X = syntheticData.map(p => [p.x]);
+    const y = syntheticData.map(p => [p.y]);
+    const m = y.length;
+
+    // Matrix operations helpers
+    const matMul = (A, B) => A.map((row, i) => B[0].map((_, j) => row.reduce((sum, elm, k) => sum + elm * B[k][j], 0)));
+    const transpose = A => A[0].map((_, colIndex) => A.map(row => row[colIndex]));
+    
+    // --- NEURAL NETWORK GRADIENT DESCENT ANIMATION ---
+    const canvas = document.getElementById('neuralNetCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 400;
+    
+    // Neural network structure
+    const layers = [3, 5, 5, 2]; // Input, hidden1, hidden2, output
+    const nodes = [];
+    const connections = [];
+    
+    // Initialize node positions
+    const layerSpacing = canvas.width / (layers.length + 1);
+    layers.forEach((count, layerIdx) => {
+        const layerNodes = [];
+        const verticalSpacing = canvas.height / (count + 1);
+        for (let i = 0; i < count; i++) {
+            layerNodes.push({
+                x: layerSpacing * (layerIdx + 1),
+                y: verticalSpacing * (i + 1),
+                activation: Math.random()
+            });
+        }
+        nodes.push(layerNodes);
+    });
+    
+    // Create connections
+    for (let l = 0; l < layers.length - 1; l++) {
+        for (let i = 0; i < nodes[l].length; i++) {
+            for (let j = 0; j < nodes[l + 1].length; j++) {
+                connections.push({
+                    from: nodes[l][i],
+                    to: nodes[l + 1][j],
+                    weight: Math.random() * 2 - 1,
+                    gradient: 0
+                });
+            }
+        }
+    }
+    
+    // Animation variables
+    let animationFrame = 0;
+    const maxFrames = 200;
+    let loss = 1.0;
+    
+    function drawNeuralNetwork() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw connections with gradient flow
+        connections.forEach(conn => {
+            const gradient = Math.abs(conn.gradient);
+            const alpha = Math.min(gradient * 2, 0.8);
+            const hue = gradient > 0.3 ? 200 : 0; // Blue for high gradient, red for low
+            
+            ctx.beginPath();
+            ctx.moveTo(conn.from.x, conn.from.y);
+            ctx.lineTo(conn.to.x, conn.to.y);
+            ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha})`;
+            ctx.lineWidth = Math.max(1, gradient * 3);
+            ctx.stroke();
+        });
+        
+        // Draw nodes
+        nodes.forEach((layer, layerIdx) => {
+            layer.forEach(node => {
+                const radius = 12;
+                const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, radius);
+                
+                // Color based on activation
+                const hue = 180 + node.activation * 60;
+                gradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.9)`);
+                gradient.addColorStop(1, `hsla(${hue}, 100%, 40%, 0.6)`);
+                
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        });
+        
+        // Draw layer labels
+        ctx.font = 'bold 14px Inter';
+        ctx.fillStyle = '#00d4ff';
+        ctx.textAlign = 'center';
+        const labels = ['Input', 'Hidden 1', 'Hidden 2', 'Output'];
+        layers.forEach((_, idx) => {
+            ctx.fillText(labels[idx], layerSpacing * (idx + 1), 30);
+        });
+        
+        // Draw loss value
+        ctx.font = 'bold 20px Inter';
+        ctx.fillStyle = '#b794f6';
+        ctx.textAlign = 'right';
+        ctx.fillText(`Loss: ${loss.toFixed(4)}`, canvas.width - 20, canvas.height - 20);
+        
+        // Draw epoch
+        ctx.fillStyle = '#4ade80';
+        ctx.fillText(`Epoch: ${animationFrame}/${maxFrames}`, canvas.width - 20, canvas.height - 50);
+    }
+    
+    function animateGradientDescent() {
+        if (animationFrame < maxFrames) {
+            // Simulate forward pass - update activations
+            for (let l = 1; l < nodes.length; l++) {
+                nodes[l].forEach(node => {
+                    node.activation = Math.max(0, Math.min(1, 
+                        node.activation + (Math.random() - 0.5) * 0.1
+                    ));
+                });
+            }
+            
+            // Simulate backward pass - update gradients
+            connections.forEach(conn => {
+                conn.gradient = Math.abs(Math.sin(animationFrame * 0.1 + conn.weight));
+                conn.weight -= 0.01 * conn.gradient; // Gradient descent step
+            });
+            
+            // Decrease loss over time
+            loss = Math.max(0.01, loss * 0.98);
+            
+            drawNeuralNetwork();
+            animationFrame++;
+            requestAnimationFrame(animateGradientDescent);
+        } else {
+            // Loop animation
+            animationFrame = 0;
+            loss = 1.0;
+            animateGradientDescent();
+        }
+    }
+    
+    // Start animation
+    animateGradientDescent();
+    
+    // --- OPTIMIZER IMPLEMENTATIONS ---
+    const train_sgd = (X, y, lr = 0.01, epochs = 100) => {
+        let w = [[0]];
+        let b = 0;
+        const losses = [];
+
+        for (let i = 0; i < epochs; i++) {
+            const y_pred = matMul(X, w).map(row => row[0] + b);
+            const error = y_pred.map((yp, j) => yp - y[j][0]);
+            const loss = error.reduce((sum, e) => sum + e * e, 0) / m;
+            losses.push(loss);
+
+            const dw_mat = matMul(transpose(X), error.map(e => [e]));
+            const dw = dw_mat[0][0] * (2 / m);
+            const db = error.reduce((sum, e) => sum + e, 0) * (2 / m);
+
+            w[0][0] -= lr * dw;
+            b -= lr * db;
+        }
+        return losses;
+    };
+    
+    const train_sgd_decay = (X, y, lr_initial = 0.1, decay = 0.05, epochs = 100) => {
+        let w = [[0]];
+        let b = 0;
+        const losses = [];
+        
+        for (let i = 0; i < epochs; i++) {
+            const lr = lr_initial / (1 + decay * i);
+            const y_pred = matMul(X, w).map(row => row[0] + b);
+            const error = y_pred.map((yp, j) => yp - y[j][0]);
+            const loss = error.reduce((sum, e) => sum + e * e, 0) / m;
+            losses.push(loss);
+
+            const dw = matMul(transpose(X), error.map(e => [e]))[0][0] * (2 / m);
+            const db = error.reduce((sum, e) => sum + e, 0) * (2 / m);
+            
+            w[0][0] -= lr * dw;
+            b -= lr * db;
+        }
+        return losses;
+    };
+
+    const train_sgd_momentum = (X, y, lr = 0.01, momentum = 0.9, epochs = 100) => {
+        let w = [[0]];
+        let b = 0;
+        let vw = 0, vb = 0;
+        const losses = [];
+
+        for (let i = 0; i < epochs; i++) {
+            const y_pred = matMul(X, w).map(row => row[0] + b);
+            const error = y_pred.map((yp, j) => yp - y[j][0]);
+            const loss = error.reduce((sum, e) => sum + e * e, 0) / m;
+            losses.push(loss);
+
+            const dw = matMul(transpose(X), error.map(e => [e]))[0][0] * (2 / m);
+            const db = error.reduce((sum, e) => sum + e, 0) * (2 / m);
+
+            vw = momentum * vw + (1 - momentum) * dw;
+            vb = momentum * vb + (1 - momentum) * db;
+
+            w[0][0] -= lr * vw;
+            b -= lr * vb;
+        }
+        return losses;
+    };
+    
+    const train_adagrad = (X, y, lr = 0.1, epochs = 100, epsilon = 1e-8) => {
+        let w = [[0]];
+        let b = 0;
+        let gw = 0, gb = 0;
+        const losses = [];
+        
+        for (let i = 0; i < epochs; i++) {
+            const y_pred = matMul(X, w).map(row => row[0] + b);
+            const error = y_pred.map((yp, j) => yp - y[j][0]);
+            losses.push(error.reduce((sum, e) => sum + e*e, 0) / m);
+
+            const dw = matMul(transpose(X), error.map(e => [e]))[0][0] * (2 / m);
+            const db = error.reduce((sum, e) => sum + e, 0) * (2 / m);
+            
+            gw += dw * dw;
+            gb += db * db;
+            
+            w[0][0] -= (lr / (Math.sqrt(gw) + epsilon)) * dw;
+            b -= (lr / (Math.sqrt(gb) + epsilon)) * db;
+        }
+        return losses;
+    };
+
+    const train_rmsprop = (X, y, lr = 0.01, beta = 0.9, epochs = 100, epsilon = 1e-8) => {
+        let w = [[0]];
+        let b = 0;
+        let gw = 0, gb = 0;
+        const losses = [];
+        
+        for (let i = 0; i < epochs; i++) {
+            const y_pred = matMul(X, w).map(row => row[0] + b);
+            const error = y_pred.map((yp, j) => yp - y[j][0]);
+            losses.push(error.reduce((sum, e) => sum + e*e, 0) / m);
+
+            const dw = matMul(transpose(X), error.map(e => [e]))[0][0] * (2 / m);
+            const db = error.reduce((sum, e) => sum + e, 0) * (2 / m);
+            
+            gw = beta * gw + (1 - beta) * (dw * dw);
+            gb = beta * gb + (1 - beta) * (db * db);
+            
+            w[0][0] -= (lr / (Math.sqrt(gw) + epsilon)) * dw;
+            b -= (lr / (Math.sqrt(gb) + epsilon)) * db;
+        }
+        return losses;
+    };
+
+    const train_adam = (X, y, lr = 0.001, epochs = 100, beta1 = 0.9, beta2 = 0.999, epsilon = 1e-8) => {
+        let w = [[0]];
+        let b = 0;
+        const losses = [];
+        let mw = 0, vw = 0, mb = 0, vb = 0;
+
+        for (let t = 1; t <= epochs; t++) {
+            const y_pred = matMul(X, w).map(row => row[0] + b);
+            const error = y_pred.map((yp, j) => yp - y[j][0]);
+            losses.push(error.reduce((sum, e) => sum + e*e, 0) / m);
+
+            const dw = matMul(transpose(X), error.map(e => [e]))[0][0] * (2 / m);
+            const db = error.reduce((sum, e) => sum + e, 0) * (2 / m);
+            
+            mw = beta1 * mw + (1 - beta1) * dw;
+            vw = beta2 * vw + (1 - beta2) * (dw * dw);
+            mb = beta1 * mb + (1 - beta1) * db;
+            vb = beta2 * vb + (1 - beta2) * (db * db);
+            
+            const mw_hat = mw / (1 - Math.pow(beta1, t));
+            const vw_hat = vw / (1 - Math.pow(beta2, t));
+            const mb_hat = mb / (1 - Math.pow(beta1, t));
+            const vb_hat = vb / (1 - Math.pow(beta2, t));
+            
+            w[0][0] -= (lr * mw_hat) / (Math.sqrt(vw_hat) + epsilon);
+            b -= (lr * mb_hat) / (Math.sqrt(vb_hat) + epsilon);
+        }
+        return losses;
+    };
+    
+    // --- CHART CONFIGURATIONS ---
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { 
+                labels: { 
+                    color: '#e0e0e0',
+                    font: { size: 12, family: 'Inter' }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#00d4ff',
+                bodyColor: '#e0e0e0',
+                borderColor: '#00d4ff',
+                borderWidth: 1
+            }
+        },
+        scales: {
+            x: {
+                title: { display: true, text: 'Epoch', color: '#ccc', font: { size: 12 } },
+                ticks: { color: '#ccc' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            y: {
+                title: { display: true, text: 'Loss', color: '#ccc', font: { size: 12 } },
+                ticks: { color: '#ccc' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            }
+        },
+        animation: {
+            duration: 2000,
+            easing: 'easeInOutQuart'
+        }
+    };
+    
+    const chartColors = ['#00d4ff', '#4ade80', '#b794f6', '#fbbf24', '#f87171', '#ec4899'];
+
+    // Dataset Chart
+    const datasetCtx = document.getElementById('datasetChart').getContext('2d');
+    new Chart(datasetCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Training Data',
+                data: syntheticData,
+                backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                borderColor: '#00d4ff',
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }, {
+                label: 'True Line (y = 3x + 7)',
+                data: syntheticData.map(p => ({ x: p.x, y: 3 * p.x + 7 })).sort((a, b) => a.x - b.x),
+                type: 'line',
+                borderColor: '#ec4899',
+                backgroundColor: 'transparent',
+                pointRadius: 0,
+                borderWidth: 3,
+                borderDash: [5, 5]
+            }]
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                x: { 
+                    title: { display: true, text: 'X (Features)', color: '#ccc' }, 
+                    ticks: { color: '#ccc' }, 
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: { 
+                    title: { display: true, text: 'y (Target)', color: '#ccc' }, 
+                    ticks: { color: '#ccc' }, 
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+
+    // SGD Chart
+    const sgdLosses = train_sgd(X, y);
+    const sgdCtx = document.getElementById('sgdChart').getContext('2d');
+    new Chart(sgdCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: sgdLosses.length }, (_, i) => i + 1),
+            datasets: [{ 
+                label: 'Vanilla SGD', 
+                data: sgdLosses, 
+                borderColor: chartColors[0], 
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4, 
+                fill: true,
+                borderWidth: 3
+            }]
+        },
+        options: chartOptions
+    });
+    
+    // Decay Chart
+    const decayLosses = train_sgd_decay(X, y);
+    const decayCtx = document.getElementById('decayChart').getContext('2d');
+    new Chart(decayCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: decayLosses.length }, (_, i) => i + 1),
+            datasets: [
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
+                { label: 'SGD + Decay', data: decayLosses, borderColor: chartColors[1], tension: 0.4, borderWidth: 3 }
+            ]
+        },
+        options: chartOptions
+    });
+
+    // Momentum Chart
+    const momentumLosses = {
+        '0': train_sgd_momentum(X, y, 0.01, 0),
+        '0.5': train_sgd_momentum(X, y, 0.01, 0.5),
+        '0.9': train_sgd_momentum(X, y, 0.01, 0.9),
+        '0.99': train_sgd_momentum(X, y, 0.01, 0.99),
+    };
+    const momentumCtx = document.getElementById('momentumChart').getContext('2d');
+    new Chart(momentumCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: 100 }, (_, i) => i + 1),
+            datasets: Object.keys(momentumLosses).map((key, i) => ({
+                label: `β=${key}`,
+                data: momentumLosses[key],
+                borderColor: chartColors[i],
+                tension: 0.4,
+                borderWidth: 2.5
+            }))
+        },
+        options: chartOptions
+    });
+    
+    // AdaGrad Chart
+    const adagradLosses = train_adagrad(X, y);
+    const adagradCtx = document.getElementById('adagradChart').getContext('2d');
+    new Chart(adagradCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: 100 }, (_, i) => i + 1),
+            datasets: [
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
+                { label: 'AdaGrad', data: adagradLosses, borderColor: chartColors[3], tension: 0.4, borderWidth: 3 }
+            ]
+        },
+        options: chartOptions
+    });
+
+    // RMSProp Chart
+    const rmspropLosses = train_rmsprop(X, y);
+    const rmspropCtx = document.getElementById('rmspropChart').getContext('2d');
+    new Chart(rmspropCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: 100 }, (_, i) => i + 1),
+            datasets: [
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
+                { label: 'AdaGrad', data: adagradLosses, borderColor: chartColors[3], tension: 0.4, borderWidth: 2 },
+                { label: 'RMSProp', data: rmspropLosses, borderColor: chartColors[4], tension: 0.4, borderWidth: 3 }
+            ]
+        },
+        options: chartOptions
+    });
+    
+    // Adam Chart - Final Comparison
+    const adamLosses = train_adam(X, y);
+    const adamCtx = document.getElementById('adamChart').getContext('2d');
+    new Chart(adamCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: 100 }, (_, i) => i + 1),
+            datasets: [
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
+                { label: 'Momentum (β=0.9)', data: momentumLosses['0.9'], borderColor: chartColors[2], tension: 0.4, borderWidth: 2 },
+                { label: 'RMSProp', data: rmspropLosses, borderColor: chartColors[4], tension: 0.4, borderWidth: 2 },
+                { label: 'Adam', data: adamLosses, borderColor: chartColors[5], tension: 0.4, borderWidth: 3.5 }
+            ]
+        },
+        options: chartOptions
+    });
+
+    // --- COPY FUNCTIONALITY ---
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const code = e.target.previousElementSibling.innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = '✓ Copied!';
+                button.style.background = 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                setTimeout(() => { 
+                    button.innerText = originalText;
+                    button.style.background = 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)';
+                }, 2000);
+            });
+        });
+    });
+
+    // --- SCROLL ANIMATIONS ---
+    const sections = document.querySelectorAll('.fade-in-section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, {
+        rootMargin: '0px',
+        threshold: 0.15
+    });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+    
+    // Smooth scroll for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
