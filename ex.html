@@ -11,11 +11,10 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script>
         // MathJax Configuration
         window.MathJax = {
@@ -31,7 +30,6 @@
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
     <style>
-        /* Custom Styles */
         * {
             margin: 0;
             padding: 0;
@@ -40,28 +38,24 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
-            color: #e0e0e0;
-            overflow-x: hidden;
+            background: #0f1419;
+            color: #c9d1d9;
+            line-height: 1.7;
         }
         
         code {
             font-family: 'Fira Code', monospace;
         }
         
-        .accent-blue { color: #00d4ff; }
-        .accent-purple { color: #b794f6; }
-        .accent-green { color: #4ade80; }
-        .bg-accent-blue { background-color: #00d4ff; }
-        .border-accent-blue { border-color: #00d4ff; }
-        .bg-dark-card { 
-            background: rgba(30, 30, 46, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .accent-blue { color: #58a6ff; }
+        .accent-muted { color: #8b949e; }
+        .bg-card { 
+            background: rgba(22, 27, 34, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(48, 54, 61, 0.8);
         }
-        .border-dark { border-color: #333; }
         
-        /* Animated Background */
+        /* Subtle animated background */
         .animated-bg {
             position: fixed;
             top: 0;
@@ -69,36 +63,22 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            overflow: hidden;
+            background: radial-gradient(ellipse at 20% 30%, rgba(88, 166, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 70%, rgba(163, 182, 138, 0.03) 0%, transparent 50%);
         }
         
-        .animated-bg::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(183, 148, 246, 0.1) 0%, transparent 50%);
-            animation: bgMove 20s ease-in-out infinite;
-        }
-        
-        @keyframes bgMove {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-50px, -50px); }
-        }
-        
-        /* Navbar styles */
+        /* Navbar */
         .navbar {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            background: rgba(10, 14, 39, 0.8);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            background: rgba(13, 17, 23, 0.85);
+            border-bottom: 1px solid rgba(48, 54, 61, 0.5);
         }
         
         .nav-link {
             position: relative;
-            transition: all 0.3s ease;
+            transition: color 0.2s ease;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
         }
         
         .nav-link::after {
@@ -107,85 +87,87 @@
             bottom: -2px;
             left: 0;
             width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00d4ff, #b794f6);
-            transition: width 0.3s ease;
+            height: 1px;
+            background: #58a6ff;
+            transition: width 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: #58a6ff;
         }
         
         .nav-link:hover::after {
             width: 100%;
         }
 
-        /* Hero Neural Network Animation Container */
+        /* Neural Network Canvas */
         #neuralNetCanvas {
             width: 100%;
-            height: 400px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(10, 14, 39, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
-                        inset 0 0 60px rgba(0, 212, 255, 0.1);
+            height: 380px;
+            border-radius: 8px;
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid rgba(48, 54, 61, 0.5);
         }
 
-        /* Code block styles */
+        /* Code blocks */
         pre {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 12px;
+            background: rgba(13, 17, 23, 0.8);
+            border-radius: 6px;
             padding: 20px;
             overflow-x: auto;
             position: relative;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(48, 54, 61, 0.6);
         }
         
         code {
-            font-size: 0.9em;
+            font-size: 0.875rem;
             line-height: 1.6;
+            color: #c9d1d9;
         }
         
         .copy-btn {
             position: absolute;
             top: 12px;
             right: 12px;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            background: rgba(48, 54, 61, 0.8);
+            color: #c9d1d9;
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
             font-weight: 500;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
         
         .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+            background: rgba(88, 166, 255, 0.15);
+            border-color: rgba(88, 166, 255, 0.5);
         }
         
-        .copy-btn:active {
-            transform: translateY(0);
-        }
-        
-        /* Collapsible details element */
+        /* Details/Summary */
         details > summary {
             cursor: pointer;
-            font-weight: 600;
-            padding: 16px 20px;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(183, 148, 246, 0.1) 100%);
-            border-radius: 8px;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: 500;
+            padding: 14px 18px;
+            background: rgba(22, 27, 34, 0.6);
+            border-radius: 6px;
+            border: 1px solid rgba(48, 54, 61, 0.6);
+            transition: all 0.2s ease;
+            list-style: none;
+        }
+        
+        details > summary::-webkit-details-marker {
+            display: none;
         }
         
         details > summary::before {
             content: '▶';
             display: inline-block;
-            transition: transform 0.3s ease;
-            color: #00d4ff;
+            margin-right: 8px;
+            transition: transform 0.2s ease;
+            color: #58a6ff;
+            font-size: 0.8rem;
         }
         
         details[open] > summary::before {
@@ -193,17 +175,15 @@
         }
         
         details > summary:hover {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(183, 148, 246, 0.15) 100%);
-            border-color: rgba(0, 212, 255, 0.5);
-            transform: translateX(5px);
+            background: rgba(22, 27, 34, 0.8);
+            border-color: rgba(88, 166, 255, 0.3);
         }
 
-        /* Fade-in animations */
+        /* Fade animations */
         .fade-in-section {
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
-                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
         
         .fade-in-section.is-visible {
@@ -211,35 +191,33 @@
             transform: translateY(0);
         }
 
-        /* Enhanced Table styles */
+        /* Table */
         .custom-table {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 2px;
-            background: linear-gradient(135deg, #00d4ff 0%, #b794f6 100%);
-            border-radius: 12px;
+            grid-template-columns: 1fr 1.5fr 1.5fr 1fr;
+            gap: 1px;
+            background: rgba(48, 54, 61, 0.5);
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
         
         .table-cell {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: rgba(22, 27, 34, 0.8);
             padding: 16px;
-            transition: all 0.3s ease;
+            transition: background 0.2s ease;
         }
         
         .table-cell:hover {
-            background: linear-gradient(135deg, #1e1e32 0%, #1a2544 100%);
-            transform: scale(1.02);
+            background: rgba(22, 27, 34, 0.95);
         }
         
         .table-header {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(183, 148, 246, 0.2) 100%);
-            font-weight: 700;
-            font-size: 0.95rem;
+            background: rgba(30, 36, 44, 0.9);
+            font-weight: 600;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #00d4ff;
+            letter-spacing: 0.5px;
+            color: #8b949e;
         }
         
         @media (max-width: 768px) {
@@ -249,122 +227,118 @@
             .table-header { display: none; }
             .table-cell {
                 display: grid;
-                grid-template-columns: 120px 1fr;
+                grid-template-columns: 110px 1fr;
                 gap: 12px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
             .table-cell::before {
                 content: attr(data-label);
-                font-weight: 700;
-                color: #00d4ff;
+                font-weight: 600;
+                color: #58a6ff;
             }
         }
 
-        /* Explanation box */
+        /* Explanation boxes */
         .explanation-box {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(183, 148, 246, 0.05) 100%);
-            border-left: 4px solid #00d4ff;
-            padding: 24px;
-            border-radius: 0 12px 12px 0;
+            background: rgba(22, 27, 34, 0.5);
+            border-left: 3px solid rgba(88, 166, 255, 0.5);
+            padding: 20px;
+            border-radius: 0 6px 6px 0;
             margin: 20px 0;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
         }
-        
-        .explanation-box:hover {
-            transform: translateX(5px);
-            box-shadow: 0 12px 48px rgba(0, 212, 255, 0.15);
-        }
-        
+
         /* Chart containers */
         .chart-container {
-            background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(26, 26, 46, 0.6) 100%);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            background: rgba(13, 17, 23, 0.5);
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(48, 54, 61, 0.5);
         }
-        
-        .chart-container:hover {
-            border-color: rgba(0, 212, 255, 0.4);
-            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.2);
-        }
-        
-        /* Badge styles */
+
+        /* Badge */
         .badge {
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
             font-weight: 600;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, 0.3);
         }
-        
+
         /* Section cards */
         .section-card {
-            background: rgba(30, 30, 46, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            background: rgba(22, 27, 34, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+            border-radius: 8px;
             padding: 32px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
         
         .section-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 212, 255, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+            border-color: rgba(88, 166, 255, 0.3);
         }
-        
-        /* Gradient text */
-        .gradient-text {
-            background: linear-gradient(135deg, #00d4ff 0%, #b794f6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        /* Number badges */
+        .number-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(88, 166, 255, 0.15);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #58a6ff;
         }
-        
-        /* Scrollbar styling */
+
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
         }
         
         ::-webkit-scrollbar-track {
-            background: #0a0e27;
+            background: #0d1117;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #00d4ff 0%, #b794f6 100%);
+            background: rgba(88, 166, 255, 0.3);
             border-radius: 5px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #0099cc 0%, #9370db 100%);
+            background: rgba(88, 166, 255, 0.5);
         }
 
-        /* Loading animation */
-        .loading-dot {
+        /* Status indicator */
+        .status-indicator {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: #00d4ff;
-            animation: loadingDot 1.4s infinite ease-in-out both;
+            background: #58a6ff;
+            margin-right: 6px;
+            animation: pulse 2s ease-in-out infinite;
         }
         
-        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Subtle highlights */
+        h1, h2, h3 {
+            color: #e6edf3;
+        }
         
-        @keyframes loadingDot {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
+        strong {
+            color: #e6edf3;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -377,199 +351,208 @@
     <header class="navbar fixed top-0 left-0 right-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold gradient-text">Optimizer Deep Dive</h1>
-                <span class="badge mt-2">Machine Learning</span>
+                <h1 class="text-lg font-semibold" style="color: #e6edf3;">Gradient Descent Optimizers</h1>
+                <span class="badge mt-1">Deep Learning</span>
             </div>
             <div class="hidden md:flex space-x-6">
-                <a href="#intro" class="nav-link hover:text-accent-blue transition-colors font-medium">Setup</a>
-                <a href="#sgd" class="nav-link hover:text-accent-blue transition-colors font-medium">SGD</a>
-                <a href="#decay" class="nav-link hover:text-accent-blue transition-colors font-medium">Decay</a>
-                <a href="#momentum" class="nav-link hover:text-accent-blue transition-colors font-medium">Momentum</a>
-                <a href="#adagrad" class="nav-link hover:text-accent-blue transition-colors font-medium">AdaGrad</a>
-                <a href="#rmsprop" class="nav-link hover:text-accent-blue transition-colors font-medium">RMSProp</a>
-                <a href="#adam" class="nav-link hover:text-accent-blue transition-colors font-medium">Adam</a>
+                <a href="#intro" class="nav-link">Setup</a>
+                <a href="#sgd" class="nav-link">SGD</a>
+                <a href="#decay" class="nav-link">Decay</a>
+                <a href="#momentum" class="nav-link">Momentum</a>
+                <a href="#adagrad" class="nav-link">AdaGrad</a>
+                <a href="#rmsprop" class="nav-link">RMSProp</a>
+                <a href="#adam" class="nav-link">Adam</a>
             </div>
         </nav>
     </header>
 
-    <main class="container mx-auto px-6 pt-32 pb-12">
+    <main class="container mx-auto px-6 pt-28 pb-12">
 
-        <!-- Hero Section with Neural Network Animation -->
-        <section class="text-center my-20 fade-in-section">
-            <div class="mb-6">
-                <span class="text-sm font-semibold tracking-wider uppercase text-accent-blue">Interactive Learning</span>
+        <!-- Hero Section -->
+        <section class="text-center my-16 fade-in-section">
+            <div class="mb-4">
+                <span class="text-xs font-medium tracking-wider uppercase accent-muted">Technical Deep Dive</span>
             </div>
-            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-4">
-                Understanding <span class="gradient-text">Gradient Descent</span>
+            <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-4">
+                Understanding Gradient Descent Optimizers
             </h1>
-            <h2 class="text-3xl md:text-4xl font-light mt-2 mb-6 text-gray-300">Optimizers: From SGD to Adam</h2>
-            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-400 leading-relaxed">
-                Dive deep into the mathematics and intuition behind modern optimization algorithms. 
-                Watch them converge in real-time with interactive visualizations.
+            <h2 class="text-2xl md:text-3xl font-light mt-2 mb-6 accent-muted">From SGD to Adam</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-base accent-muted leading-relaxed">
+                A comprehensive analysis of optimization algorithms in neural network training. 
+                This guide covers the mathematical foundations, implementation details, and practical considerations 
+                for selecting and tuning optimizers in production environments.
             </p>
             
-            <!-- Neural Network Animation Canvas -->
+            <!-- Neural Network Animation -->
             <div class="mt-12 max-w-5xl mx-auto">
                 <canvas id="neuralNetCanvas"></canvas>
-                <p class="mt-4 text-sm text-gray-500 flex items-center justify-center gap-2">
-                    <span class="loading-dot"></span>
-                    <span class="loading-dot"></span>
-                    <span class="loading-dot"></span>
-                    <span class="ml-2">Gradient Descent in Action</span>
+                <p class="mt-3 text-xs accent-muted flex items-center justify-center gap-2">
+                    <span class="status-indicator"></span>
+                    <span>Live gradient descent simulation</span>
                 </p>
             </div>
         </section>
 
         <!-- Introduction Section -->
-        <section id="intro" class="my-20 py-12 fade-in-section">
+        <section id="intro" class="my-16 py-8 fade-in-section">
             <div class="section-card">
-                <h2 class="text-4xl font-bold mb-6 gradient-text">Introduction & Setup</h2>
-                <p class="text-lg text-gray-300 mb-8 leading-relaxed">
-                    Training neural networks efficiently requires more than just basic gradient descent. Modern optimizers like SGD with momentum, AdaGrad, RMSProp, and Adam act as intelligent navigation systems, helping your model converge faster and more reliably. Let's explore how each optimizer works and when to use them.
+                <h2 class="text-3xl font-bold mb-6">Introduction & Experimental Setup</h2>
+                <p class="text-base accent-muted mb-6 leading-relaxed">
+                    Optimization algorithms are fundamental to training neural networks effectively. While vanilla gradient descent 
+                    provides the theoretical foundation, modern optimizers incorporate adaptive learning rates, momentum, and 
+                    variance reduction techniques to improve convergence properties. This guide provides both theoretical analysis 
+                    and empirical comparisons of major optimization algorithms.
                 </p>
                 
-                <h3 class="text-3xl font-semibold mt-12 mb-6 flex items-center gap-3">
-                    <span class="w-2 h-10 bg-gradient-to-b from-accent-blue to-accent-purple rounded-full"></span>
-                    Generating Synthetic Data
-                </h3>
-                <p class="text-gray-300 mb-6 leading-relaxed">
-                    We'll create a toy linear regression dataset: $y = 3x + 7 + \text{noise}$. Our goal is to recover the weights $w$ and bias $b$ by minimizing Mean Squared Error (MSE):
+                <h3 class="text-2xl font-semibold mt-10 mb-5">Synthetic Dataset Generation</h3>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    We construct a simple linear regression problem: $y = 3x + 7 + \epsilon$ where $\epsilon \sim \mathcal{N}(0, 0.5^2)$. 
+                    The objective is to recover parameters $w$ and $b$ by minimizing the Mean Squared Error loss function:
                 </p>
                 
-                <div class="bg-dark-card p-6 rounded-lg my-6 border border-accent-blue">
-                    <p class="text-center text-lg font-mono">
-                        $$ \mathcal{L} = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}_i - y_i)^2 \quad \text{where} \quad \hat{y} = Xw + b $$
+                <div class="bg-card p-5 rounded-lg my-6 border border-gray-700">
+                    <p class="text-center font-mono text-sm">
+                        $$ \mathcal{L}(w, b) = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}_i - y_i)^2 \quad \text{where} \quad \hat{y} = Xw + b $$
                     </p>
                 </div>
                 
-                <p class="text-gray-300 mb-6 leading-relaxed">The gradients with respect to our parameters are:</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    The gradients are computed analytically using the chain rule:
+                </p>
                 
-                <div class="grid md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-dark-card p-6 rounded-lg border border-accent-purple">
-                        <p class="text-center font-mono">
+                <div class="grid md:grid-cols-2 gap-5 mb-6">
+                    <div class="bg-card p-5 rounded-lg border border-gray-700">
+                        <p class="text-center font-mono text-sm">
                             $$ \frac{\partial \mathcal{L}}{\partial w} = \frac{2}{m} X^T (\hat{y} - y) $$
                         </p>
                     </div>
-                    <div class="bg-dark-card p-6 rounded-lg border border-accent-green">
-                        <p class="text-center font-mono">
+                    <div class="bg-card p-5 rounded-lg border border-gray-700">
+                        <p class="text-center font-mono text-sm">
                             $$ \frac{\partial \mathcal{L}}{\partial b} = \frac{2}{m} \sum_{i=1}^{m} (\hat{y}_i - y_i) $$
                         </p>
                     </div>
                 </div>
 
-                <details class="mb-8">
-                    <summary>💻 View Python Setup Code</summary>
+                <details class="mb-6">
+                    <summary>View implementation details</summary>
                     <div class="mt-4 relative">
-<pre><code class="language-python"># Import necessary libraries for numerical computations and plotting
-import numpy as np
+<pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# Set a random seed to ensure reproducibility of results across runs
+# Set random seed for reproducibility
 np.random.seed(42)
 
-# Generate 100 random input features X from a standard normal distribution (mean=0, std=1)
+# Generate input features from standard normal distribution
 X = np.random.randn(100, 1)
 
-# Create target values y using the linear model y = 3*X + 7 + Gaussian noise (std=0.5)
-# This simulates real-world data with some variability
+# Generate targets with additive Gaussian noise
 y = 3 * X + 7 + np.random.randn(100, 1) * 0.5
 
-# Visualize the dataset as a scatter plot for quick inspection
+# Visualization
 plt.figure(figsize=(10, 6))
-plt.scatter(X, y, alpha=0.6, s=50, c='#00d4ff', edgecolors='white', linewidth=0.5)
-plt.plot(X, 3*X + 7, 'r--', linewidth=2, label='True Line: y = 3x + 7')
-plt.xlabel('X', fontsize=12)
-plt.ylabel('y', fontsize=12)
-plt.title('Synthetic Linear Data with Gaussian Noise', fontsize=14, fontweight='bold')
-plt.legend()
-plt.grid(alpha=0.3)
+plt.scatter(X, y, alpha=0.5, s=40, c='#58a6ff', edgecolors='none')
+plt.plot(X, 3*X + 7, 'r--', linewidth=2, alpha=0.7, label='True: y = 3x + 7')
+plt.xlabel('X', fontsize=11)
+plt.ylabel('y', fontsize=11)
+plt.title('Synthetic Linear Regression Dataset', fontsize=12, fontweight='600')
+plt.legend(frameon=False)
+plt.grid(alpha=0.2, linestyle='--')
+plt.tight_layout()
 plt.show()
 </code><button class="copy-btn">Copy</button></pre>
                     </div>
                 </details>
                 
-                <!-- Visual Data Representation -->
-                <div class="mt-8 chart-container">
-                    <h4 class="text-xl font-semibold mb-4 text-center">📊 Synthetic Dataset Visualization</h4>
+                <!-- Dataset Visualization -->
+                <div class="mt-6 chart-container">
+                    <h4 class="text-lg font-semibold mb-4">Dataset Visualization</h4>
                     <canvas id="datasetChart"></canvas>
                 </div>
             </div>
         </section>
 
         <!-- Core Content Sections -->
-        <div class="space-y-20">
+        <div class="space-y-16">
             
             <!-- Vanilla SGD -->
             <section id="sgd" class="section-card fade-in-section">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-2xl font-bold">1</div>
-                    <h2 class="text-4xl font-bold gradient-text">Vanilla Stochastic Gradient Descent (SGD)</h2>
+                    <div class="number-badge">1</div>
+                    <h2 class="text-3xl font-bold">Stochastic Gradient Descent</h2>
                 </div>
-                <p class="text-gray-300 mb-6 text-lg">The foundation of all optimizers: simple, elegant, and effective for convex problems.</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    The foundational first-order optimization algorithm. Updates parameters in the opposite direction 
+                    of the gradient, scaled by a fixed learning rate $\alpha$.
+                </p>
 
                 <div class="explanation-box">
-                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
-                    <p class="text-gray-200 mb-6 leading-relaxed">
-                        Imagine hiking down a mountain blindfolded, using only the slope beneath your feet to decide each step. SGD takes consistent steps in the steepest downhill direction, scaled by a learning rate (step size).
+                    <h3 class="text-xl font-semibold mb-4">Algorithm Analysis</h3>
+                    <p class="text-base accent-muted mb-5 leading-relaxed">
+                        SGD performs parameter updates according to: $\theta_{t+1} = \theta_t - \alpha \nabla_\theta \mathcal{L}(\theta_t)$. 
+                        While simple and computationally efficient, the fixed learning rate presents challenges in non-convex optimization landscapes. 
+                        The algorithm exhibits oscillatory behavior in regions with high curvature and slow convergence on plateau regions.
                     </p>
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid md:grid-cols-2 gap-5">
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Dead simple to implement</li>
-                                <li>Minimal memory overhead</li>
-                                <li>Works great on convex problems</li>
-                                <li>Provides full control over learning</li>
+                            <h4 class="text-base font-semibold mb-3 accent-blue">Advantages</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Minimal computational overhead per iteration</li>
+                                <li>Low memory footprint (no auxiliary variables)</li>
+                                <li>Well-suited for convex optimization</li>
+                                <li>Interpretable hyperparameter (learning rate only)</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Oscillates in narrow valleys</li>
-                                <li>Slow on plateaus</li>
-                                <li>Highly sensitive to learning rate</li>
-                                <li>No adaptive behavior</li>
+                            <h4 class="text-base font-semibold mb-3 accent-muted">Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>High sensitivity to learning rate selection</li>
+                                <li>Prone to oscillation in steep valleys</li>
+                                <li>Slow convergence on flat surfaces</li>
+                                <li>Difficulty escaping saddle points</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
                     <div class="chart-container">
-                        <h4 class="text-xl font-semibold mb-4">📈 Loss Convergence</h4>
+                        <h4 class="text-lg font-semibold mb-4">Loss Convergence</h4>
                         <canvas id="sgdChart"></canvas>
                     </div>
                     <div class="relative">
-<pre><code class="language-python"># Vanilla SGD Implementation
-def train_sgd(X, y, lr=0.01, epochs=100):
+<pre><code class="language-python">def train_sgd(X, y, lr=0.01, epochs=100):
     """
-    Train linear regression using vanilla SGD
+    Vanilla SGD implementation for linear regression.
     
-    Args:
-        X: Input features (m x 1)
-        y: Target values (m x 1)
+    Parameters:
+        X: Feature matrix (m x n)
+        y: Target vector (m x 1)
         lr: Learning rate (step size)
         epochs: Number of training iterations
+        
+    Returns:
+        w, b: Learned parameters
+        losses: Training loss history
     """
-    # Initialize parameters randomly
+    # Initialize parameters
     w = np.random.randn(1, 1)
     b = np.random.randn(1)
     losses = []
     m = len(y)
     
     for epoch in range(epochs):
-        # Forward pass: compute predictions
+        # Forward pass
         y_pred = X @ w + b
         
-        # Compute MSE loss
+        # Compute loss
         loss = np.mean((y_pred - y) ** 2)
         losses.append(loss)
         
-        # Backward pass: compute gradients
+        # Compute gradients
         dw = (2 / m) * X.T @ (y_pred - y)
         db = (2 / m) * np.sum(y_pred - y)
         
-        # Update parameters (gradient descent step)
+        # Parameter update
         w -= lr * dw
         b -= lr * db
     
@@ -582,63 +565,71 @@ def train_sgd(X, y, lr=0.01, epochs=100):
             <!-- SGD with Decay -->
             <section id="decay" class="section-card fade-in-section">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-green to-accent-blue flex items-center justify-center text-2xl font-bold">2</div>
-                    <h2 class="text-4xl font-bold gradient-text">SGD with Learning Rate Decay</h2>
+                    <div class="number-badge">2</div>
+                    <h2 class="text-3xl font-bold">Learning Rate Scheduling</h2>
                 </div>
-                <p class="text-gray-300 mb-6 text-lg">Gradually reducing the learning rate prevents overshooting and enables finer convergence.</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    Dynamic learning rate adjustment improves convergence by taking larger steps initially and 
+                    smaller steps near optima. Inverse time decay provides a smooth, monotonic schedule.
+                </p>
 
                 <div class="explanation-box">
-                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
-                    <p class="text-gray-200 mb-6 leading-relaxed">
-                        Start with bold strides when far from the goal, then slow down as you approach it. This prevents bouncing around the minimum and allows precise fine-tuning.
+                    <h3 class="text-xl font-semibold mb-4">Algorithm Analysis</h3>
+                    <p class="text-base accent-muted mb-5 leading-relaxed">
+                        The learning rate decays according to: $\alpha_t = \frac{\alpha_0}{1 + \gamma t}$ where $\gamma$ is the decay rate. 
+                        This approach balances exploration in early epochs with exploitation in later stages. The decay schedule must be 
+                        calibrated to prevent premature convergence or excessive training time.
                     </p>
-                    <div class="bg-dark-card p-4 rounded-lg border border-accent-blue mb-6">
-                        <p class="text-center font-mono text-lg">
-                            $$ \text{lr}_t = \frac{\text{lr}_0}{1 + \text{decay} \cdot t} $$
+                    <div class="bg-card p-4 rounded-lg border border-gray-700 mb-5">
+                        <p class="text-center font-mono text-sm">
+                            $$ \alpha_t = \frac{\alpha_0}{1 + \gamma \cdot t} $$
                         </p>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid md:grid-cols-2 gap-5">
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Smoother convergence trajectory</li>
-                                <li>Reduces late-stage oscillations</li>
-                                <li>Often reaches lower final loss</li>
+                            <h4 class="text-base font-semibold mb-3 accent-blue">Advantages</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Reduced oscillation near convergence</li>
+                                <li>Often achieves lower final loss values</li>
                                 <li>Simple to implement</li>
+                                <li>Theoretically grounded convergence properties</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Requires tuning initial lr and decay</li>
-                                <li>Too aggressive decay stalls early</li>
-                                <li>Not adaptive to problem geometry</li>
-                                <li>May decay too quickly</li>
+                            <h4 class="text-base font-semibold mb-3 accent-muted">Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Requires tuning of decay hyperparameter</li>
+                                <li>Aggressive decay can stall training prematurely</li>
+                                <li>Not adaptive to local geometry</li>
+                                <li>May require schedule warm-up</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
                     <div class="chart-container">
-                        <h4 class="text-xl font-semibold mb-4">📉 Loss with Decay Schedule</h4>
+                        <h4 class="text-lg font-semibold mb-4">Decay Schedule Impact</h4>
                         <canvas id="decayChart"></canvas>
                     </div>
                     <div class="relative">
-<pre><code class="language-python"># SGD with Inverse Time Decay
-def train_sgd_decay(X, y, lr_initial=0.1, 
+<pre><code class="language-python">def train_sgd_decay(X, y, lr_initial=0.1, 
                     decay=0.05, epochs=100):
     """
-    SGD with time-based learning rate decay
+    SGD with inverse time decay schedule.
     
-    The learning rate decreases inversely with time:
+    The effective learning rate decreases over time:
     lr(t) = lr_0 / (1 + decay * t)
+    
+    Parameters:
+        lr_initial: Initial learning rate
+        decay: Decay rate coefficient
     """
     w, b = np.random.randn(1,1), np.random.randn(1)
     losses, m = [], len(y)
     
     for epoch in range(epochs):
-        # Compute decayed learning rate
+        # Apply decay schedule
         lr = lr_initial / (1 + decay * epoch)
         
         # Forward pass
@@ -662,60 +653,66 @@ def train_sgd_decay(X, y, lr_initial=0.1,
             <!-- Momentum -->
             <section id="momentum" class="section-card fade-in-section">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-2xl font-bold">3</div>
-                    <h2 class="text-4xl font-bold gradient-text">SGD with Momentum</h2>
+                    <div class="number-badge">3</div>
+                    <h2 class="text-3xl font-bold">Momentum-Based Optimization</h2>
                 </div>
-                <p class="text-gray-300 mb-6 text-lg">Accelerate learning by accumulating velocity in consistent gradient directions.</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    Incorporates exponentially weighted moving averages of past gradients to accelerate learning 
+                    in consistent directions and dampen oscillations perpendicular to the descent path.
+                </p>
 
                 <div class="explanation-box">
-                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
-                    <p class="text-gray-200 mb-6 leading-relaxed">
-                        Like a ball rolling downhill, momentum builds speed in the descent direction and carries inertia through flat regions. This helps escape shallow local minima and reduces zigzagging in ravine-like loss surfaces.
+                    <h3 class="text-xl font-semibold mb-4">Algorithm Analysis</h3>
+                    <p class="text-base accent-muted mb-5 leading-relaxed">
+                        Momentum maintains a velocity vector $v_t$ that accumulates gradients: $v_t = \beta v_{t-1} + (1-\beta)\nabla_\theta \mathcal{L}$, 
+                        followed by the update: $\theta_{t+1} = \theta_t - \alpha v_t$. The momentum coefficient $\beta$ (typically 0.9) 
+                        controls the exponential decay of past gradients. This mechanism enables the optimizer to build inertia in 
+                        directions of persistent gradient alignment while smoothing out high-frequency oscillations.
                     </p>
-                    <div class="bg-dark-card p-4 rounded-lg border border-accent-purple mb-6">
-                        <p class="text-center font-mono text-lg">
-                            $$ v_t = \beta v_{t-1} + (1 - \beta) \nabla_\theta \mathcal{L} $$
-                            $$ \theta_{t+1} = \theta_t - \alpha v_t $$
+                    <div class="bg-card p-4 rounded-lg border border-gray-700 mb-5">
+                        <p class="text-center font-mono text-sm">
+                            $$ v_t = \beta v_{t-1} + (1-\beta) \nabla_\theta \mathcal{L}, \quad \theta_{t+1} = \theta_t - \alpha v_t $$
                         </p>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid md:grid-cols-2 gap-5">
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Faster convergence than vanilla SGD</li>
-                                <li>Dampens oscillations significantly</li>
-                                <li>Escapes shallow local minima</li>
-                                <li>Works great with noisy gradients</li>
+                            <h4 class="text-base font-semibold mb-3 accent-blue">Advantages</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Accelerated convergence in ravine-like landscapes</li>
+                                <li>Effective dampening of gradient noise</li>
+                                <li>Improved escape from local minima</li>
+                                <li>Reduced sensitivity to learning rate</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Can overshoot if β too high</li>
-                                <li>Requires momentum tuning</li>
-                                <li>May miss sharp minima</li>
-                                <li>Extra hyperparameter to manage</li>
+                            <h4 class="text-base font-semibold mb-3 accent-muted">Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Potential overshooting with high momentum</li>
+                                <li>Additional hyperparameter to tune</li>
+                                <li>May bypass sharp but desirable minima</li>
+                                <li>Requires careful initialization</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
                     <div class="chart-container">
-                        <h4 class="text-xl font-semibold mb-4">🚀 Effect of Momentum Values</h4>
+                        <h4 class="text-lg font-semibold mb-4">Momentum Coefficient Analysis</h4>
                         <canvas id="momentumChart"></canvas>
                     </div>
                     <div class="relative">
-<pre><code class="language-python"># SGD with Momentum Implementation
-def train_sgd_momentum(X, y, lr=0.01, 
+<pre><code class="language-python">def train_sgd_momentum(X, y, lr=0.01, 
                        momentum=0.9, epochs=100):
     """
-    SGD with momentum - accumulates velocity
+    SGD with momentum acceleration.
     
-    Args:
-        momentum: Friction factor (0-1)
-                 Higher = more inertia
-    """
+    Maintains exponentially weighted moving average
+    of gradients to smooth updates and build inertia.
+    
+    Parameters:
+        momentum: Decay factor for velocity (β)
+                 Typical values: 0.9, 0.95, 0.99"""
     w, b = np.random.randn(1,1), np.random.randn(1)
     losses, m = [], len(y)
     
@@ -727,15 +724,15 @@ def train_sgd_momentum(X, y, lr=0.01,
         y_pred = X @ w + b
         losses.append(np.mean((y_pred - y)**2))
         
-        # Compute raw gradients
+        # Compute gradients
         dw = (2/m) * X.T @ (y_pred - y)
         db = (2/m) * np.sum(y_pred - y)
 
-        # Update velocities (exponential moving average)
+        # Update velocity (exponential moving average)
         v_w = momentum * v_w + (1-momentum) * dw
         v_b = momentum * v_b + (1-momentum) * db
         
-        # Update parameters using velocity
+        # Parameter update using velocity
         w -= lr * v_w
         b -= lr * v_b
 
@@ -748,66 +745,72 @@ def train_sgd_momentum(X, y, lr=0.01,
             <!-- AdaGrad -->
             <section id="adagrad" class="section-card fade-in-section">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl font-bold">4</div>
-                    <h2 class="text-4xl font-bold gradient-text">AdaGrad: Adaptive Gradient Algorithm</h2>
+                    <div class="number-badge">4</div>
+                    <h2 class="text-3xl font-bold">AdaGrad: Adaptive Gradient Algorithm</h2>
                 </div>
-                <p class="text-gray-300 mb-6 text-lg">Parameter-specific learning rates based on historical gradient information.</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    Adapts learning rates on a per-parameter basis using accumulated squared gradients. 
+                    Particularly effective for sparse gradient scenarios encountered in natural language processing.
+                </p>
 
                 <div class="explanation-box">
-                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
-                    <p class="text-gray-200 mb-6 leading-relaxed">
-                        Each parameter gets its own personalized learning rate. Frequently updated parameters (large historical gradients) receive smaller steps to avoid overshooting, while rare updates get larger boosts. Perfect for sparse data like text embeddings.
+                    <h3 class="text-xl font-semibold mb-4">Algorithm Analysis</h3>
+                    <p class="text-base accent-muted mb-5 leading-relaxed">
+                        AdaGrad maintains an accumulator $G_t = G_{t-1} + g_t^2$ for each parameter, where $g_t = \nabla_\theta \mathcal{L}$. 
+                        Updates are computed as: $\theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{G_t + \epsilon}} g_t$. 
+                        Parameters with historically large gradients receive proportionally smaller updates, while infrequently updated 
+                        parameters benefit from larger effective learning rates. The monotonic accumulation of $G_t$ leads to 
+                        continual learning rate decay, which can be problematic in non-convex settings.
                     </p>
-                    <div class="bg-dark-card p-4 rounded-lg border border-yellow-400 mb-6">
-                        <p class="text-center font-mono text-lg">
-                            $$ G_t = G_{t-1} + g_t^2 $$
-                            $$ \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{G_t + \epsilon}} g_t $$
+                    <div class="bg-card p-4 rounded-lg border border-gray-700 mb-5">
+                        <p class="text-center font-mono text-sm">
+                            $$ G_t = G_{t-1} + g_t^2, \quad \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{G_t + \epsilon}} g_t $$
                         </p>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid md:grid-cols-2 gap-5">
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                            <h4 class="text-base font-semibold mb-3 accent-blue">Advantages</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
                                 <li>Adaptive per-parameter learning rates</li>
-                                <li>Excellent for sparse features</li>
-                                <li>No manual lr tuning per parameter</li>
-                                <li>Works great in NLP tasks</li>
+                                <li>Effective for sparse feature spaces</li>
+                                <li>Eliminates need for manual lr tuning per parameter</li>
+                                <li>Well-suited for online learning scenarios</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Accumulator grows indefinitely</li>
-                                <li>Learning rate decays to near-zero</li>
-                                <li>Stops learning in long training</li>
+                            <h4 class="text-base font-semibold mb-3 accent-muted">Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Unbounded accumulator growth</li>
+                                <li>Learning rate decay to near-zero</li>
+                                <li>Premature convergence in deep networks</li>
                                 <li>No momentum component</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
                     <div class="chart-container">
-                        <h4 class="text-xl font-semibold mb-4">⚡ SGD vs AdaGrad Performance</h4>
+                        <h4 class="text-lg font-semibold mb-4">Comparative Analysis</h4>
                         <canvas id="adagradChart"></canvas>
                     </div>
                     <div class="relative">
-<pre><code class="language-python"># AdaGrad Implementation
-def train_adagrad(X, y, lr=0.1, 
+<pre><code class="language-python">def train_adagrad(X, y, lr=0.1, 
                   epochs=100, epsilon=1e-8):
     """
-    AdaGrad - Adaptive Gradient Algorithm
+    AdaGrad optimizer implementation.
     
-    Accumulates squared gradients to scale
-    learning rate per parameter
+    Adapts learning rates based on historical
+    squared gradient magnitudes. Accumulator grows
+    monotonically, leading to decay.
     
-    Args:
-        epsilon: Small constant for numerical stability
+    Parameters:
+        epsilon: Numerical stability constant
     """
     w, b = np.random.randn(1,1), np.random.randn(1)
     losses, m = [], len(y)
     
-    # Accumulators for squared gradients
+    # Initialize gradient accumulators
     g_w, g_b = np.zeros_like(w), np.zeros_like(b)
     
     for epoch in range(epochs):
@@ -823,7 +826,7 @@ def train_adagrad(X, y, lr=0.1,
         g_w += dw**2
         g_b += db**2
         
-        # Adaptive update with per-parameter lr
+        # Adaptive parameter update
         w -= (lr / (np.sqrt(g_w + epsilon))) * dw
         b -= (lr / (np.sqrt(g_b + epsilon))) * db
         
@@ -836,67 +839,74 @@ def train_adagrad(X, y, lr=0.1,
             <!-- RMSProp -->
             <section id="rmsprop" class="section-card fade-in-section">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-2xl font-bold">5</div>
-                    <h2 class="text-4xl font-bold gradient-text">RMSProp: Root Mean Square Propagation</h2>
+                    <div class="number-badge">5</div>
+                    <h2 class="text-3xl font-bold">RMSProp: Root Mean Square Propagation</h2>
                 </div>
-                <p class="text-gray-300 mb-6 text-lg">Fixes AdaGrad's aggressive decay using exponential moving averages.</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    Addresses AdaGrad's aggressive learning rate decay by using exponentially weighted moving averages 
+                    of squared gradients, enabling sustained learning in non-stationary environments.
+                </p>
 
                 <div class="explanation-box">
-                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
-                    <p class="text-gray-200 mb-6 leading-relaxed">
-                        RMSProp uses a "leaky bucket" approach—gradually forgetting old gradients while remembering recent ones. This prevents the learning rate from decaying to zero and keeps the optimizer responsive to changing gradient landscapes, making it ideal for non-stationary objectives like RNNs.
+                    <h3 class="text-xl font-semibold mb-4">Algorithm Analysis</h3>
+                    <p class="text-base accent-muted mb-5 leading-relaxed">
+                        RMSProp replaces AdaGrad's cumulative sum with an exponential moving average: 
+                        $E[g^2]_t = \beta E[g^2]_{t-1} + (1-\beta)g_t^2$, followed by the update: 
+                        $\theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{E[g^2]_t + \epsilon}} g_t$. 
+                        The decay parameter $\beta$ (typically 0.9 or 0.99) implements a "forgetting factor" that 
+                        allows the optimizer to respond to recent gradient information while maintaining stability. 
+                        This modification prevents the learning rate from vanishing and is particularly effective 
+                        for recurrent architectures with non-stationary dynamics.
                     </p>
-                    <div class="bg-dark-card p-4 rounded-lg border border-green-400 mb-6">
-                        <p class="text-center font-mono text-lg">
-                            $$ E[g^2]_t = \beta E[g^2]_{t-1} + (1-\beta) g_t^2 $$
-                            $$ \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{E[g^2]_t + \epsilon}} g_t $$
+                    <div class="bg-card p-4 rounded-lg border border-gray-700 mb-5">
+                        <p class="text-center font-mono text-sm">
+                            $$ E[g^2]_t = \beta E[g^2]_{t-1} + (1-\beta)g_t^2, \quad \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{E[g^2]_t + \epsilon}} g_t $$
                         </p>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid md:grid-cols-2 gap-5">
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Handles non-stationary objectives</li>
-                                <li>Learning rate doesn't vanish</li>
-                                <li>Works well with RNNs</li>
+                            <h4 class="text-base font-semibold mb-3 accent-blue">Advantages</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Sustained learning rate throughout training</li>
+                                <li>Adaptive to non-stationary objectives</li>
+                                <li>Effective for recurrent neural networks</li>
                                 <li>Balances responsiveness and stability</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Requires β tuning</li>
-                                <li>Can still decay with low β</li>
-                                <li>No momentum component</li>
-                                <li>Sensitive to initialization</li>
+                            <h4 class="text-base font-semibold mb-3 accent-muted">Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Requires tuning of decay parameter</li>
+                                <li>No bias correction mechanism</li>
+                                <li>Lacks momentum component</li>
+                                <li>Sensitive to initialization scale</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
                     <div class="chart-container">
-                        <h4 class="text-xl font-semibold mb-4">📊 Adaptive Optimizers Comparison</h4>
+                        <h4 class="text-lg font-semibold mb-4">Adaptive Methods Comparison</h4>
                         <canvas id="rmspropChart"></canvas>
                     </div>
                     <div class="relative">
-<pre><code class="language-python"># RMSProp Implementation
-def train_rmsprop(X, y, lr=0.01, beta=0.9, 
+<pre><code class="language-python">def train_rmsprop(X, y, lr=0.01, beta=0.9, 
                   epochs=100, epsilon=1e-8):
     """
-    RMSProp - Root Mean Square Propagation
+    RMSProp optimizer implementation.
     
-    Uses exponential moving average of squared
-    gradients instead of cumulative sum
+    Uses exponentially decaying average of squared
+    gradients to prevent learning rate collapse.
     
-    Args:
+    Parameters:
         beta: Decay rate for moving average
-              (typically 0.9 or 0.99)
+              Common values: 0.9, 0.99
     """
     w, b = np.random.randn(1,1), np.random.randn(1)
     losses, m = [], len(y)
     
-    # Moving averages for squared gradients
+    # Initialize moving average accumulators
     g_w, g_b = np.zeros_like(w), np.zeros_like(b)
     
     for epoch in range(epochs):
@@ -908,11 +918,11 @@ def train_rmsprop(X, y, lr=0.01, beta=0.9,
         dw = (2/m) * X.T @ (y_pred - y)
         db = (2/m) * np.sum(y_pred - y)
         
-        # Update moving average (exponential decay)
+        # Update moving average of squared gradients
         g_w = beta * g_w + (1-beta) * (dw**2)
         g_b = beta * g_b + (1-beta) * (db**2)
         
-        # Adaptive update using RMS
+        # Adaptive update using RMS scaling
         w -= (lr / (np.sqrt(g_w + epsilon))) * dw
         b -= (lr / (np.sqrt(g_b + epsilon))) * db
         
@@ -925,66 +935,72 @@ def train_rmsprop(X, y, lr=0.01, beta=0.9,
             <!-- Adam -->
             <section id="adam" class="section-card fade-in-section">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-2xl font-bold">6</div>
-                    <h2 class="text-4xl font-bold gradient-text">Adam: The King of Optimizers</h2>
+                    <div class="number-badge">6</div>
+                    <h2 class="text-3xl font-bold">Adam: Adaptive Moment Estimation</h2>
                 </div>
-                <p class="text-gray-300 mb-6 text-lg">Combines momentum and RMSProp with bias correction for state-of-the-art performance.</p>
+                <p class="text-base accent-muted mb-5 leading-relaxed">
+                    Combines momentum with adaptive learning rates and incorporates bias correction for moment estimates. 
+                    Currently the de facto standard optimizer for deep learning applications.
+                </p>
 
                 <div class="explanation-box">
-                    <h3 class="text-2xl font-semibold mb-4 accent-blue">🧠 Core Concept</h3>
-                    <p class="text-gray-200 mb-6 leading-relaxed">
-                        Adam (Adaptive Moment Estimation) is the Swiss Army knife of optimizers. It tracks both the mean (first moment) and variance (second moment) of gradients, combines momentum's directional acceleration with RMSProp's adaptive scaling, and adds bias correction to fix initial underestimation. Result: robust, fast convergence with sensible defaults.
+                    <h3 class="text-xl font-semibold mb-4">Algorithm Analysis</h3>
+                    <p class="text-base accent-muted mb-5 leading-relaxed">
+                        Adam maintains both first moment (mean) $m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t$ and second moment (uncentered variance) 
+                        $v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2$ estimates. These are bias-corrected via: 
+                        $\hat{m}_t = m_t/(1-\beta_1^t)$ and $\hat{v}_t = v_t/(1-\beta_2^t)$, followed by the update: 
+                        $\theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$. 
+                        The bias correction is critical in early iterations when moment estimates are initialized at zero. 
+                        Default hyperparameters ($\beta_1=0.9$, $\beta_2=0.999$, $\alpha=0.001$) are robust across diverse problem domains.
                     </p>
-                    <div class="bg-dark-card p-4 rounded-lg border border-pink-500 mb-6">
-                        <p class="text-center font-mono text-sm">
-                            $$ m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t, \quad v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2 $$
-                            $$ \hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t} $$
-                            $$ \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t $$
+                    <div class="bg-card p-4 rounded-lg border border-gray-700 mb-5">
+                        <p class="text-center font-mono text-xs">
+                            $$ m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t, \quad v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2 $$
+                            $$ \hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t}, \quad \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t $$
                         </p>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid md:grid-cols-2 gap-5">
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-green">✅ Strengths</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Best-in-class default optimizer</li>
-                                <li>Combines momentum + adaptation</li>
-                                <li>Bias-corrected for early epochs</li>
-                                <li>Works out-of-box on most problems</li>
-                                <li>Fast and stable convergence</li>
+                            <h4 class="text-base font-semibold mb-3 accent-blue">Advantages</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Robust default hyperparameters</li>
+                                <li>Combines benefits of momentum and adaptation</li>
+                                <li>Bias correction for accurate moment estimation</li>
+                                <li>Efficient convergence on most architectures</li>
+                                <li>Minimal tuning required in practice</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold mb-3 accent-purple">⚠️ Limitations</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>More hyperparameters to tune</li>
-                                <li>Higher memory overhead</li>
-                                <li>May generalize worse than SGD</li>
-                                <li>Can converge to sharp minima</li>
+                            <h4 class="text-base font-semibold mb-3 accent-muted">Limitations</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm accent-muted">
+                                <li>Higher memory overhead (two moment buffers)</li>
+                                <li>May converge to sharp minima</li>
+                                <li>Potential generalization gap vs SGD</li>
+                                <li>More hyperparameters than simpler methods</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
                     <div class="chart-container">
-                        <h4 class="text-xl font-semibold mb-4">👑 All Optimizers: Final Showdown</h4>
+                        <h4 class="text-lg font-semibold mb-4">Comprehensive Optimizer Comparison</h4>
                         <canvas id="adamChart"></canvas>
                     </div>
                     <div class="relative">
-<pre><code class="language-python"># Adam Optimizer Implementation
-def train_adam(X, y, lr=0.001, epochs=100,
+<pre><code class="language-python">def train_adam(X, y, lr=0.001, epochs=100,
                beta1=0.9, beta2=0.999, epsilon=1e-8):
     """
-    Adam - Adaptive Moment Estimation
+    Adam optimizer implementation.
     
-    Combines momentum (first moment) and 
-    RMSProp (second moment) with bias correction
+    Combines first and second moment estimates with
+    bias correction for improved early-stage learning.
     
-    Args:
-        beta1: Decay for first moment (momentum)
-        beta2: Decay for second moment (RMSProp)
-    
-    Default hyperparameters work well in practice!
+    Parameters:
+        beta1: Exponential decay for first moment
+        beta2: Exponential decay for second moment
+        
+    Note: Default parameters work well in most cases
     """
     w, b = np.random.randn(1,1), np.random.randn(1)
     losses, m = [], len(y)
@@ -1002,15 +1018,15 @@ def train_adam(X, y, lr=0.001, epochs=100,
         dw = (2/m) * X.T @ (y_pred - y)
         db = (2/m) * np.sum(y_pred - y)
         
-        # Update biased first moment (momentum)
+        # Update biased first moment estimate
         m_w = beta1 * m_w + (1 - beta1) * dw
         m_b = beta1 * m_b + (1 - beta1) * db
         
-        # Update biased second moment (RMSProp)
+        # Update biased second moment estimate
         v_w = beta2 * v_w + (1 - beta2) * (dw ** 2)
         v_b = beta2 * v_b + (1 - beta2) * (db ** 2)
         
-        # Bias correction (crucial for early epochs)
+        # Compute bias-corrected moment estimates
         m_w_hat = m_w / (1 - beta1 ** t)
         v_w_hat = v_w / (1 - beta2 ** t)
         m_b_hat = m_b / (1 - beta1 ** t)
@@ -1028,82 +1044,118 @@ def train_adam(X, y, lr=0.001, epochs=100,
         </div>
 
         <!-- Key Takeaways -->
-        <section class="my-20 py-12 fade-in-section">
-            <div class="text-center mb-12">
-                <h2 class="text-5xl font-bold gradient-text mb-4">Key Takeaways</h2>
-                <p class="text-xl text-gray-400">When to use which optimizer</p>
+        <section class="my-16 py-8 fade-in-section">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-bold mb-3">Practical Guidelines</h2>
+                <p class="text-base accent-muted">Selection criteria for optimization algorithms</p>
             </div>
             
             <div class="custom-table">
                 <!-- Header -->
-                <div class="table-cell table-header">Optimizer</div>
-                <div class="table-cell table-header">Strengths</div>
-                <div class="table-cell table-header">Weaknesses</div>
-                <div class="table-cell table-header">Best For</div>
+                <div class="table-cell table-header">Algorithm</div>
+                <div class="table-cell table-header">Key Strengths</div>
+                <div class="table-cell table-header">Primary Limitations</div>
+                <div class="table-cell table-header">Recommended Use Cases</div>
                 
                 <!-- SGD -->
-                <div class="table-cell" data-label="Optimizer">
-                    <div class="font-bold text-accent-blue">SGD</div>
+                <div class="table-cell" data-label="Algorithm">
+                    <div class="font-semibold accent-blue">SGD</div>
                 </div>
-                <div class="table-cell" data-label="Strengths">Simple, lightweight, full control</div>
-                <div class="table-cell" data-label="Weaknesses">Slow convergence, oscillations</div>
-                <div class="table-cell" data-label="Best For">Quick prototypes, convex problems</div>
+                <div class="table-cell" data-label="Key Strengths">
+                    <span class="text-sm">Minimal overhead, interpretable, good generalization</span>
+                </div>
+                <div class="table-cell" data-label="Primary Limitations">
+                    <span class="text-sm">Slow convergence, sensitive to learning rate</span>
+                </div>
+                <div class="table-cell" data-label="Recommended Use Cases">
+                    <span class="text-sm">Convex problems, final fine-tuning</span>
+                </div>
                 
                 <!-- SGD + Decay -->
-                <div class="table-cell" data-label="Optimizer">
-                    <div class="font-bold text-accent-green">SGD + Decay</div>
+                <div class="table-cell" data-label="Algorithm">
+                    <div class="font-semibold accent-blue">SGD + Decay</div>
                 </div>
-                <div class="table-cell" data-label="Strengths">Prevents overshooting, smoother</div>
-                <div class="table-cell" data-label="Weaknesses">Needs tuning, can stall early</div>
-                <div class="table-cell" data-label="Best For">Long training runs</div>
+                <div class="table-cell" data-label="Key Strengths">
+                    <span class="text-sm">Reduced oscillation, smoother convergence</span>
+                </div>
+                <div class="table-cell" data-label="Primary Limitations">
+                    <span class="text-sm">Schedule tuning required, premature decay risk</span>
+                </div>
+                <div class="table-cell" data-label="Recommended Use Cases">
+                    <span class="text-sm">Extended training runs, known schedule</span>
+                </div>
                 
                 <!-- Momentum -->
-                <div class="table-cell" data-label="Optimizer">
-                    <div class="font-bold text-accent-purple">Momentum</div>
+                <div class="table-cell" data-label="Algorithm">
+                    <div class="font-semibold accent-blue">Momentum</div>
                 </div>
-                <div class="table-cell" data-label="Strengths">Faster in ravines, dampens oscillations</div>
-                <div class="table-cell" data-label="Weaknesses">Can overshoot, extra hyperparameter</div>
-                <div class="table-cell" data-label="Best For">Noisy gradients, deep networks</div>
+                <div class="table-cell" data-label="Key Strengths">
+                    <span class="text-sm">Faster convergence, noise dampening</span>
+                </div>
+                <div class="table-cell" data-label="Primary Limitations">
+                    <span class="text-sm">Potential overshooting, extra hyperparameter</span>
+                </div>
+                <div class="table-cell" data-label="Recommended Use Cases">
+                    <span class="text-sm">Deep networks, noisy gradients</span>
+                </div>
                 
                 <!-- AdaGrad -->
-                <div class="table-cell" data-label="Optimizer">
-                    <div class="font-bold" style="color: #fbbf24;">AdaGrad</div>
+                <div class="table-cell" data-label="Algorithm">
+                    <div class="font-semibold accent-blue">AdaGrad</div>
                 </div>
-                <div class="table-cell" data-label="Strengths">Handles sparse data, adaptive per-param</div>
-                <div class="table-cell" data-label="Weaknesses">Learning rate decays to zero</div>
-                <div class="table-cell" data-label="Best For">NLP with rare words, sparse features</div>
+                <div class="table-cell" data-label="Key Strengths">
+                    <span class="text-sm">Per-parameter adaptation, sparse data handling</span>
+                </div>
+                <div class="table-cell" data-label="Primary Limitations">
+                    <span class="text-sm">Learning rate decay to zero</span>
+                </div>
+                <div class="table-cell" data-label="Recommended Use Cases">
+                    <span class="text-sm">NLP, sparse features, online learning</span>
+                </div>
                 
                 <!-- RMSProp -->
-                <div class="table-cell" data-label="Optimizer">
-                    <div class="font-bold" style="color: #4ade80;">RMSProp</div>
+                <div class="table-cell" data-label="Algorithm">
+                    <div class="font-semibold accent-blue">RMSProp</div>
                 </div>
-                <div class="table-cell" data-label="Strengths">Non-monotonic decay, responsive</div>
-                <div class="table-cell" data-label="Weaknesses">Sensitive to β, no momentum</div>
-                <div class="table-cell" data-label="Best For">RNNs, non-stationary objectives</div>
+                <div class="table-cell" data-label="Key Strengths">
+                    <span class="text-sm">Non-monotonic decay, non-stationary objectives</span>
+                </div>
+                <div class="table-cell" data-label="Primary Limitations">
+                    <span class="text-sm">No bias correction, decay parameter sensitivity</span>
+                </div>
+                <div class="table-cell" data-label="Recommended Use Cases">
+                    <span class="text-sm">RNNs, online learning, streaming data</span>
+                </div>
                 
                 <!-- Adam -->
-                <div class="table-cell" data-label="Optimizer">
-                    <div class="font-bold" style="color: #ec4899;">Adam</div>
+                <div class="table-cell" data-label="Algorithm">
+                    <div class="font-semibold accent-blue">Adam</div>
                 </div>
-                <div class="table-cell" data-label="Strengths">Best defaults, combines momentum + adaptation</div>
-                <div class="table-cell" data-label="Weaknesses">More params, may generalize worse</div>
-                <div class="table-cell" data-label="Best For">Most modern models (CNNs, Transformers)</div>
+                <div class="table-cell" data-label="Key Strengths">
+                    <span class="text-sm">Robust defaults, fast convergence, minimal tuning</span>
+                </div>
+                <div class="table-cell" data-label="Primary Limitations">
+                    <span class="text-sm">Memory overhead, possible generalization gap</span>
+                </div>
+                <div class="table-cell" data-label="Recommended Use Cases">
+                    <span class="text-sm">General-purpose, CNNs, Transformers</span>
+                </div>
             </div>
             
-            <div class="mt-12 p-8 bg-dark-card rounded-xl border-2 border-accent-blue text-center">
-                <p class="text-2xl font-semibold mb-4">💡 Pro Tips</p>
-                <div class="grid md:grid-cols-3 gap-6 text-left">
-                    <div class="p-4 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-lg">
-                        <p class="font-bold mb-2 text-accent-blue">🚀 Quick Start</p>
-                        <p class="text-sm text-gray-300">Start with Adam (lr=0.001). It works 90% of the time.</p>
+            <div class="mt-10 bg-card rounded-lg p-6 border border-gray-700">
+                <h3 class="text-lg font-semibold mb-4">Implementation Recommendations</h3>
+                <div class="grid md:grid-cols-3 gap-5 text-sm">
+                    <div class="p-4 bg-gray-900 bg-opacity-40 rounded-lg">
+                        <p class="font-semibold mb-2 accent-blue">Default Choice</p>
+                        <p class="accent-muted">Start with Adam (lr=1e-3). Provides strong baseline performance across most architectures.</p>
                     </div>
-                    <div class="p-4 bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-lg">
-                        <p class="font-bold mb-2 text-accent-purple">🎯 Fine-Tuning</p>
-                        <p class="text-sm text-gray-300">Use SGD with momentum for better generalization on final training.</p>
+                    <div class="p-4 bg-gray-900 bg-opacity-40 rounded-lg">
+                        <p class="font-semibold mb-2 accent-blue">Production Training</p>
+                        <p class="accent-muted">Consider SGD with momentum for final training when generalization is critical.</p>
                     </div>
-                    <div class="p-4 bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-lg">
-                        <p class="font-bold mb-2 text-accent-green">⚡ Always</p>
-                        <p class="text-sm text-gray-300">Add gradient clipping to prevent exploding gradients!</p>
+                    <div class="p-4 bg-gray-900 bg-opacity-40 rounded-lg">
+                        <p class="font-semibold mb-2 accent-blue">Stability</p>
+                        <p class="accent-muted">Always implement gradient clipping to prevent numerical instability.</p>
                     </div>
                 </div>
             </div>
@@ -1111,9 +1163,9 @@ def train_adam(X, y, lr=0.001, epochs=100,
 
     </main>
 
-    <footer class="text-center py-8 border-t border-dark">
-        <p class="text-gray-500 mb-2">&copy; 2025 Optimizer Deep Dive. Crafted with ❤️ for ML enthusiasts.</p>
-        <p class="text-sm text-gray-600">Scroll up to explore more visualizations</p>
+    <footer class="text-center py-6 border-t border-gray-800">
+        <p class="text-xs accent-muted">Technical documentation on gradient-based optimization algorithms</p>
+        <p class="text-xs accent-muted mt-1">Implementation reference for deep learning practitioners</p>
     </footer>
 
 <script>
@@ -1178,8 +1230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { x: 1.030999522495951, y: 10.239534804137195 },
         { x: 0.9312801191161986, y: 9.436664648335412 },
         { x: -0.8392175232226385, y: 5.415234685904463 },
-        { x: -0.3092123758512146, y: 6.30927933290225 },
-        { x: 0.33126343140356396, y: 7.398138545609368 },
+        { x: -0.3092123758512146, y: 6.30927933290225 },{ x: 0.33126343140356396, y: 7.398138545609368 },
         { x: 0.9755451271223592, y: 10.254912185683992 },
         { x: -0.47917423784528995, y: 5.0751364513504695 },
         { x: -0.18565897666381712, y: 6.836565371879774 },
@@ -1227,24 +1278,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const y = syntheticData.map(p => [p.y]);
     const m = y.length;
 
-    // Matrix operations helpers
+    // Matrix operations
     const matMul = (A, B) => A.map((row, i) => B[0].map((_, j) => row.reduce((sum, elm, k) => sum + elm * B[k][j], 0)));
     const transpose = A => A[0].map((_, colIndex) => A.map(row => row[colIndex]));
     
-    // --- NEURAL NETWORK GRADIENT DESCENT ANIMATION ---
+    // --- NEURAL NETWORK ANIMATION ---
     const canvas = document.getElementById('neuralNetCanvas');
     const ctx = canvas.getContext('2d');
     
-    // Set canvas size
     canvas.width = canvas.offsetWidth;
-    canvas.height = 400;
+    canvas.height = 380;
     
-    // Neural network structure
-    const layers = [3, 5, 5, 2]; // Input, hidden1, hidden2, output
+    // Network architecture
+    const layers = [3, 5, 5, 2];
     const nodes = [];
     const connections = [];
     
-    // Initialize node positions
+    // Initialize nodes
     const layerSpacing = canvas.width / (layers.length + 1);
     layers.forEach((count, layerIdx) => {
         const layerNodes = [];
@@ -1253,13 +1303,13 @@ document.addEventListener('DOMContentLoaded', () => {
             layerNodes.push({
                 x: layerSpacing * (layerIdx + 1),
                 y: verticalSpacing * (i + 1),
-                activation: Math.random()
+                activation: Math.random() * 0.5 + 0.25
             });
         }
         nodes.push(layerNodes);
     });
     
-    // Create connections
+    // Initialize connections
     for (let l = 0; l < layers.length - 1; l++) {
         for (let i = 0; i < nodes[l].length; i++) {
             for (let j = 0; j < nodes[l + 1].length; j++) {
@@ -1273,101 +1323,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Animation variables
     let animationFrame = 0;
-    const maxFrames = 200;
+    const maxFrames = 300;
     let loss = 1.0;
     
     function drawNeuralNetwork() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Draw connections with gradient flow
+        // Draw connections
         connections.forEach(conn => {
             const gradient = Math.abs(conn.gradient);
-            const alpha = Math.min(gradient * 2, 0.8);
-            const hue = gradient > 0.3 ? 200 : 0; // Blue for high gradient, red for low
+            const alpha = Math.min(gradient * 1.5, 0.4);
             
             ctx.beginPath();
             ctx.moveTo(conn.from.x, conn.from.y);
             ctx.lineTo(conn.to.x, conn.to.y);
-            ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha})`;
-            ctx.lineWidth = Math.max(1, gradient * 3);
+            ctx.strokeStyle = `rgba(88, 166, 255, ${alpha})`;
+            ctx.lineWidth = Math.max(0.5, gradient * 2);
             ctx.stroke();
         });
         
         // Draw nodes
         nodes.forEach((layer, layerIdx) => {
             layer.forEach(node => {
-                const radius = 12;
+                const radius = 10;
                 const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, radius);
                 
-                // Color based on activation
-                const hue = 180 + node.activation * 60;
-                gradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.9)`);
-                gradient.addColorStop(1, `hsla(${hue}, 100%, 40%, 0.6)`);
+                const intensity = node.activation;
+                gradient.addColorStop(0, `rgba(88, 166, 255, ${0.6 + intensity * 0.4})`);
+                gradient.addColorStop(1, `rgba(88, 166, 255, ${0.2 + intensity * 0.2})`);
                 
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
                 ctx.fillStyle = gradient;
                 ctx.fill();
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(88, 166, 255, 0.3)';
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
             });
         });
         
-        // Draw layer labels
-        ctx.font = 'bold 14px Inter';
-        ctx.fillStyle = '#00d4ff';
+        // Draw labels
+        ctx.font = '600 12px Inter';
+        ctx.fillStyle = 'rgba(139, 148, 158, 0.8)';
         ctx.textAlign = 'center';
         const labels = ['Input', 'Hidden 1', 'Hidden 2', 'Output'];
         layers.forEach((_, idx) => {
-            ctx.fillText(labels[idx], layerSpacing * (idx + 1), 30);
+            ctx.fillText(labels[idx], layerSpacing * (idx + 1), 25);
         });
         
-        // Draw loss value
-        ctx.font = 'bold 20px Inter';
-        ctx.fillStyle = '#b794f6';
+        // Draw metrics
+        ctx.font = '500 14px Inter';
+        ctx.fillStyle = 'rgba(88, 166, 255, 0.8)';
         ctx.textAlign = 'right';
-        ctx.fillText(`Loss: ${loss.toFixed(4)}`, canvas.width - 20, canvas.height - 20);
+        ctx.fillText(`Loss: ${loss.toFixed(4)}`, canvas.width - 20, canvas.height - 40);
         
-        // Draw epoch
-        ctx.fillStyle = '#4ade80';
-        ctx.fillText(`Epoch: ${animationFrame}/${maxFrames}`, canvas.width - 20, canvas.height - 50);
+        ctx.fillStyle = 'rgba(139, 148, 158, 0.6)';
+        ctx.fillText(`Iteration: ${animationFrame}/${maxFrames}`, canvas.width - 20, canvas.height - 20);
     }
     
     function animateGradientDescent() {
         if (animationFrame < maxFrames) {
-            // Simulate forward pass - update activations
+            // Update activations
             for (let l = 1; l < nodes.length; l++) {
                 nodes[l].forEach(node => {
-                    node.activation = Math.max(0, Math.min(1, 
-                        node.activation + (Math.random() - 0.5) * 0.1
+                    node.activation = Math.max(0.1, Math.min(0.9, 
+                        node.activation + (Math.random() - 0.5) * 0.08
                     ));
                 });
             }
             
-            // Simulate backward pass - update gradients
+            // Update gradients
             connections.forEach(conn => {
-                conn.gradient = Math.abs(Math.sin(animationFrame * 0.1 + conn.weight));
-                conn.weight -= 0.01 * conn.gradient; // Gradient descent step
+                conn.gradient = Math.abs(Math.sin(animationFrame * 0.08 + conn.weight * 2));
+                conn.weight -= 0.008 * conn.gradient;
             });
             
-            // Decrease loss over time
-            loss = Math.max(0.01, loss * 0.98);
+            // Decay loss
+            loss = Math.max(0.01, loss * 0.985);
             
             drawNeuralNetwork();
             animationFrame++;
             requestAnimationFrame(animateGradientDescent);
         } else {
-            // Loop animation
             animationFrame = 0;
             loss = 1.0;
             animateGradientDescent();
         }
     }
     
-    // Start animation
     animateGradientDescent();
     
     // --- OPTIMIZER IMPLEMENTATIONS ---
@@ -1513,44 +1557,44 @@ document.addEventListener('DOMContentLoaded', () => {
         return losses;
     };
     
-    // --- CHART CONFIGURATIONS ---
+    // --- CHART CONFIGURATION ---
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: true,
         plugins: {
             legend: { 
                 labels: { 
-                    color: '#e0e0e0',
-                    font: { size: 12, family: 'Inter' }
+                    color: '#c9d1d9',
+                    font: { size: 11, family: 'Inter' }
                 }
             },
             tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                titleColor: '#00d4ff',
-                bodyColor: '#e0e0e0',
-                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                titleColor: '#58a6ff',
+                bodyColor: '#c9d1d9',
+                borderColor: 'rgba(88, 166, 255, 0.3)',
                 borderWidth: 1
             }
         },
         scales: {
             x: {
-                title: { display: true, text: 'Epoch', color: '#ccc', font: { size: 12 } },
-                ticks: { color: '#ccc' },
-                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                title: { display: true, text: 'Epoch', color: '#8b949e', font: { size: 11 } },
+                ticks: { color: '#8b949e', font: { size: 10 } },
+                grid: { color: 'rgba(48, 54, 61, 0.3)' }
             },
             y: {
-                title: { display: true, text: 'Loss', color: '#ccc', font: { size: 12 } },
-                ticks: { color: '#ccc' },
-                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                title: { display: true, text: 'Loss', color: '#8b949e', font: { size: 11 } },
+                ticks: { color: '#8b949e', font: { size: 10 } },
+                grid: { color: 'rgba(48, 54, 61, 0.3)' }
             }
         },
         animation: {
-            duration: 2000,
-            easing: 'easeInOutQuart'
+            duration: 1500,
+            easing: 'easeInOutCubic'
         }
     };
     
-    const chartColors = ['#00d4ff', '#4ade80', '#b794f6', '#fbbf24', '#f87171', '#ec4899'];
+    const chartColors = ['#58a6ff', '#7ee787', '#a371f7', '#ffa657', '#f85149', '#ff7b72'];
 
     // Dataset Chart
     const datasetCtx = document.getElementById('datasetChart').getContext('2d');
@@ -1560,33 +1604,33 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [{
                 label: 'Training Data',
                 data: syntheticData,
-                backgroundColor: 'rgba(0, 212, 255, 0.6)',
-                borderColor: '#00d4ff',
-                pointRadius: 5,
-                pointHoverRadius: 7
+                backgroundColor: 'rgba(88, 166, 255, 0.5)',
+                borderColor: '#58a6ff',
+                pointRadius: 4,
+                pointHoverRadius: 6
             }, {
-                label: 'True Line (y = 3x + 7)',
+                label: 'True Relationship',
                 data: syntheticData.map(p => ({ x: p.x, y: 3 * p.x + 7 })).sort((a, b) => a.x - b.x),
                 type: 'line',
-                borderColor: '#ec4899',
+                borderColor: 'rgba(126, 231, 135, 0.7)',
                 backgroundColor: 'transparent',
                 pointRadius: 0,
-                borderWidth: 3,
-                borderDash: [5, 5]
+                borderWidth: 2,
+                borderDash: [4, 4]
             }]
         },
         options: {
             ...chartOptions,
             scales: {
                 x: { 
-                    title: { display: true, text: 'X (Features)', color: '#ccc' }, 
-                    ticks: { color: '#ccc' }, 
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    title: { display: true, text: 'Features (X)', color: '#8b949e' }, 
+                    ticks: { color: '#8b949e' }, 
+                    grid: { color: 'rgba(48, 54, 61, 0.3)' }
                 },
                 y: { 
-                    title: { display: true, text: 'y (Target)', color: '#ccc' }, 
-                    ticks: { color: '#ccc' }, 
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    title: { display: true, text: 'Target (y)', color: '#8b949e' }, 
+                    ticks: { color: '#8b949e' }, 
+                    grid: { color: 'rgba(48, 54, 61, 0.3)' }
                 }
             }
         }
@@ -1600,13 +1644,13 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: Array.from({ length: sgdLosses.length }, (_, i) => i + 1),
             datasets: [{ 
-                label: 'Vanilla SGD', 
+                label: 'SGD', 
                 data: sgdLosses, 
                 borderColor: chartColors[0], 
-                backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                tension: 0.4, 
+                backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                tension: 0.3, 
                 fill: true,
-                borderWidth: 3
+                borderWidth: 2
             }]
         },
         options: chartOptions
@@ -1620,8 +1664,8 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: Array.from({ length: decayLosses.length }, (_, i) => i + 1),
             datasets: [
-                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
-                { label: 'SGD + Decay', data: decayLosses, borderColor: chartColors[1], tension: 0.4, borderWidth: 3 }
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.3, borderWidth: 1.5 },
+                { label: 'SGD + Decay', data: decayLosses, borderColor: chartColors[1], tension: 0.3, borderWidth: 2 }
             ]
         },
         options: chartOptions
@@ -1643,8 +1687,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: `β=${key}`,
                 data: momentumLosses[key],
                 borderColor: chartColors[i],
-                tension: 0.4,
-                borderWidth: 2.5
+                tension: 0.3,
+                borderWidth: 2
             }))
         },
         options: chartOptions
@@ -1658,8 +1702,8 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: Array.from({ length: 100 }, (_, i) => i + 1),
             datasets: [
-                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
-                { label: 'AdaGrad', data: adagradLosses, borderColor: chartColors[3], tension: 0.4, borderWidth: 3 }
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.3, borderWidth: 1.5 },
+                { label: 'AdaGrad', data: adagradLosses, borderColor: chartColors[3], tension: 0.3, borderWidth: 2 }
             ]
         },
         options: chartOptions
@@ -1673,15 +1717,15 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: Array.from({ length: 100 }, (_, i) => i + 1),
             datasets: [
-                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
-                { label: 'AdaGrad', data: adagradLosses, borderColor: chartColors[3], tension: 0.4, borderWidth: 2 },
-                { label: 'RMSProp', data: rmspropLosses, borderColor: chartColors[4], tension: 0.4, borderWidth: 3 }
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.3, borderWidth: 1.5 },
+                { label: 'AdaGrad', data: adagradLosses, borderColor: chartColors[3], tension: 0.3, borderWidth: 1.5 },
+                { label: 'RMSProp', data: rmspropLosses, borderColor: chartColors[4], tension: 0.3, borderWidth: 2 }
             ]
         },
         options: chartOptions
     });
     
-    // Adam Chart - Final Comparison
+    // Adam Chart
     const adamLosses = train_adam(X, y);
     const adamCtx = document.getElementById('adamChart').getContext('2d');
     new Chart(adamCtx, {
@@ -1689,32 +1733,34 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: Array.from({ length: 100 }, (_, i) => i + 1),
             datasets: [
-                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.4, borderWidth: 2 },
-                { label: 'Momentum (β=0.9)', data: momentumLosses['0.9'], borderColor: chartColors[2], tension: 0.4, borderWidth: 2 },
-                { label: 'RMSProp', data: rmspropLosses, borderColor: chartColors[4], tension: 0.4, borderWidth: 2 },
-                { label: 'Adam', data: adamLosses, borderColor: chartColors[5], tension: 0.4, borderWidth: 3.5 }
+                { label: 'SGD', data: sgdLosses, borderColor: chartColors[0], tension: 0.3, borderWidth: 1.5 },
+                { label: 'Momentum (β=0.9)', data: momentumLosses['0.9'], borderColor: chartColors[2], tension: 0.3, borderWidth: 1.5 },
+                { label: 'RMSProp', data: rmspropLosses, borderColor: chartColors[4], tension: 0.3, borderWidth: 1.5 },
+                { label: 'Adam', data: adamLosses, borderColor: chartColors[5], tension: 0.3, borderWidth: 2.5 }
             ]
         },
         options: chartOptions
     });
 
-    // --- COPY FUNCTIONALITY ---
+    // Copy button functionality
     document.querySelectorAll('.copy-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const code = e.target.previousElementSibling.innerText;
             navigator.clipboard.writeText(code).then(() => {
                 const originalText = button.innerText;
-                button.innerText = '✓ Copied!';
-                button.style.background = 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                button.innerText = 'Copied';
+                button.style.background = 'rgba(126, 231, 135, 0.2)';
+                button.style.borderColor = 'rgba(126, 231, 135, 0.5)';
                 setTimeout(() => { 
                     button.innerText = originalText;
-                    button.style.background = 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)';
-                }, 2000);
+                    button.style.background = 'rgba(48, 54, 61, 0.8)';
+                    button.style.borderColor = 'rgba(88, 166, 255, 0.3)';
+                }, 1800);
             });
         });
     });
 
-    // --- SCROLL ANIMATIONS ---
+    // Scroll animations
     const sections = document.querySelectorAll('.fade-in-section');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -1724,14 +1770,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, {
         rootMargin: '0px',
-        threshold: 0.15
+        threshold: 0.1
     });
 
     sections.forEach(section => {
         observer.observe(section);
     });
     
-    // Smooth scroll for navigation
+    // Smooth scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
