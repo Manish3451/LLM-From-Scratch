@@ -1,40 +1,19 @@
-# Building a Large Language Model from Scratch
+Building a Large Language Model from Scratch
 
-## Overview
+Overview
 
-This project implements a complete pipeline for building, training, and fine-tuning a GPT-2 style language model from scratch. The implementation follows a three-stage approach: building the foundational LLM architecture, pretraining on unlabeled data, and fine-tuning for specific downstream tasks including spam classification.
+This project implements a complete pipeline for building, training, and fine-tuning a GPT-2 style language model from scratch using PyTorch. The implementation covers all fundamental stages, from data preparation and tokenization to building the transformer architecture, pretraining on unlabeled data, and fine-tuning for downstream classification tasks.
 
-## Architecture
+This work is based on the comprehensive concepts detailed in the book Build a Large Language Model (from Scratch) by Raschka, Mirjalili, and D'Souza.
 
-The model implements the standard GPT-2 transformer architecture with the following components:
+<p align="center">
+<img src="images/llm.png" alt="LLM Project Banner" width="800"/>
+</p>
 
-### Core Components
+Project Structure
 
-**Token and Position Embeddings**
-- Token embeddings convert discrete tokens into continuous vector representations
-- Positional embeddings inject sequence order information into the model
-- Both embeddings are learned during training
-
-**Multi-Head Self-Attention Mechanism**
-- Enables the model to attend to different positions in the input sequence
-- Uses scaled dot-product attention with causal masking for autoregressive generation
-- Multiple attention heads allow the model to capture diverse semantic relationships
-
-**Feed-Forward Networks**
-- Two-layer MLP with GELU activation applied after each attention block
-- Expands the hidden dimension by 4x in the intermediate layer
-- Provides non-linear transformations to increase model expressiveness
-
-**Layer Normalization and Residual Connections**
-- Pre-normalization applied before each sub-layer
-- Residual connections around each sub-layer facilitate gradient flow
-- Critical for training stability in deep networks
-
-## Project Structure
-
-```
 LLM FROM SCRATCH/
-├── __pycache__/
+├── pycache/
 ├── gpt2/
 ├── images/
 │   ├── llm.png
@@ -43,7 +22,6 @@ LLM FROM SCRATCH/
 ├── sms_spam_collection/
 ├── .gitattributes
 ├── .gitignore
-├── 4.66
 ├── gpt_download3.py
 ├── LICENSE
 ├── LLM.tokenizer.ipynb
@@ -58,182 +36,341 @@ LLM FROM SCRATCH/
 ├── train.csv
 ├── validation.csv
 └── verdict.txt
-```
 
-## Three-Stage Training Pipeline
 
-### Stage 1: Building the LLM
 
-The first stage focuses on implementing the core architecture and understanding the fundamental mechanisms:
+Three-Stage Training Pipeline
 
-1. **Data Preparation & Sampling**: Tokenization and batching of training data
-2. **Attention Mechanism**: Implementation of scaled dot-product attention with causal masking
-3. **LLM Architecture**: Assembly of the complete transformer model with embedding layers, attention blocks, and feed-forward networks
+The project follows a systematic three-stage approach to build and deploy a production-ready language model, leveraging the power of transfer learning.
 
-### Stage 2: Pretraining the Foundation Model
+<p align="center">
+<img src="images/Screenshot%202025-10-21%20163332.png" alt="Three-Stage Training Pipeline" width="900"/>
+</p>
+
+Stage 1: Building the LLM
+
+The first stage focuses on implementing the core architecture and understanding fundamental mechanisms:
+
+1. Data Preparation & Sampling
+
+Tokenization of raw text using OpenAI's tiktoken library (GPT-2's Byte-Pair Encoder).
+
+Creation of input-target pairs using a sliding window approach.
+
+Custom PyTorch DataLoader for efficient batch processing.
+
+# Custom DataLoader creates batches for training the language model
+train_loader = create_dataloader_v1(
+    train_data,
+    batch_size=2,
+    max_length=GPT_CONFIG_124M["context_length"],
+    stride=GPT_CONFIG_124M["context_length"],
+)
+
+
+
+2. Attention Mechanism
+
+Implementation of causal multi-head self-attention.
+
+Scaled dot-product attention with causal masking for autoregressive generation.
+
+Multiple attention heads to capture diverse semantic relationships.
+
+3. LLM Architecture
+
+Assembly of the complete transformer model with embedding layers.
+
+Stacked transformer blocks with attention and feed-forward networks.
+
+Layer normalization and residual connections for training stability.
+
+Stage 2: Pretraining the Foundation Model
 
 The second stage creates a foundational language model through pretraining on unlabeled text:
 
-4. **Pretraining**: Training the model on a large corpus using next-token prediction
-5. **Training Loop**: Optimization using AdamW with learning rate scheduling
-6. **Model Evaluation**: Validation on held-out data to monitor convergence
+4. Pretraining
 
-The model learns general language patterns, grammar, and semantic relationships during this phase.
+Training on the the-verdict.txt corpus using next-token prediction.
 
-### Stage 3: Fine-Tuning for Downstream Tasks
+The model learns general language patterns, grammar, and semantic relationships.
+
+5. Training Loop
+
+Optimization using AdamW optimizer with learning rate scheduling.
+
+Cross-entropy loss calculation and gradient-based weight updates.
+
+# Simplified training loop
+def train_model_simple(model, train_loader, val_loader, optimizer, device, num_epochs, ...):
+    for epoch in range(num_epochs):
+        for input_batch, target_batch in train_loader:
+            optimizer.zero_grad()
+            loss = calc_loss_batch(input_batch, target_batch, model, device)
+            loss.backward()
+            optimizer.step()
+
+
+
+6. Model Evaluation
+
+Validation on held-out data to monitor convergence.
+
+Regular checkpointing to save model progress.
+
+Stage 3: Fine-Tuning for Downstream Tasks
 
 The final stage adapts the pretrained model for specific applications:
 
-7. **Load Pretrained Weights**: Initialize with pretrained GPT-2 parameters
-8. **Fine-Tuning for Classification**: Adapt the model for spam detection by adding a classification head
-9. **Fine-Tuning for Chat**: Adapt the model for conversational AI using instruction-following datasets
+7. Load Pretrained Weights
 
-## Training Progress
+Initialize with official GPT-2 (124M) pretrained parameters.
 
-### Loss Curves
+Automatic download via the gpt_download3.py script.
 
-The training process shows healthy convergence with the training loss steadily decreasing over epochs:
+8. Fine-Tuning for Classification
 
-![Training Progress](loss-plot.pdf)
+Adaptation for spam detection using the SMS Spam Collection dataset.
 
-**Key Observations:**
-- Training loss decreases from approximately 9.5 to below 1.0 over 10 epochs
-- Validation loss stabilizes around 6.5, indicating some overfitting in later epochs
-- The gap between training and validation loss suggests the model is learning meaningful patterns
-- Token efficiency improves as the model processes more data
+Replace language modeling head with a classification head.
 
-## Implementation Details
+Parameter-efficient fine-tuning by freezing most layers.
 
-### Tokenization
+# Replace the output head for 2-class (spam/ham) classification
+num_classes = 2
+model.out_head = torch.nn.Linear(
+    in_features=BASE_CONFIG["emb_dim"], 
+    out_features=num_classes
+)
 
-The project uses a custom byte-pair encoding (BPE) tokenizer compatible with GPT-2:
+# Unfreeze only the final transformer block for efficient training
+for param in model.trf_blocks[-1].parameters():
+    param.requires_grad = True
+for param in model.final_norm.parameters():
+    param.requires_grad = True
 
-- Vocabulary size: 50,257 tokens
-- Special tokens for padding, end-of-sequence, and unknown tokens
-- Handles both encoding and decoding of text sequences
 
-### Training Configuration
 
-```python
-# Model hyperparameters
-vocab_size = 50257
-context_length = 1024
-embedding_dim = 768
-num_heads = 12
-num_layers = 12
-dropout = 0.1
+9. Fine-Tuning for Chat
 
-# Training hyperparameters
-batch_size = 8
-learning_rate = 5e-4
-num_epochs = 10
-weight_decay = 0.1
-```
+Adaptation for conversational AI using instruction-following datasets.
 
-### Pretraining Dataset
+Training the model to follow user instructions and maintain context.
 
-The model was pretrained on `the-verdict.txt`, a curated text corpus suitable for demonstrating the language modeling objective.
+Model Architecture
 
-### Fine-Tuning: Spam Classification
+The model implements a GPT-2 style transformer architecture built from scratch using PyTorch. The architecture is defined by a configuration dictionary:
 
-After pretraining, the model was fine-tuned on the SMS Spam Collection dataset:
+# GPT-2 Small (124M) configuration
+GPT_CONFIG_124M = {
+    "vocab_size": 50257,    # Vocabulary size
+    "context_length": 1024, # Context length
+    "emb_dim": 768,         # Embedding dimension
+    "n_heads": 12,          # Number of attention heads
+    "n_layers": 12,         # Number of layers
+    "drop_rate": 0.1,       # Dropout rate
+    "qkv_bias": False       # Query-Key-Value bias
+}
 
-- **Task**: Binary classification (spam vs. ham)
-- **Dataset**: SMS messages labeled as spam or legitimate
-- **Architecture**: GPT-2 backbone + classification head
-- **Performance**: The fine-tuned model effectively distinguishes between spam and ham messages
 
-## Loading Pretrained Weights
 
-The project includes functionality to load pretrained GPT-2 weights from OpenAI:
+Core Components
 
-```python
+Token and Position Embeddings
+
+Token embeddings convert discrete tokens into continuous 768-dimensional vectors.
+
+Positional embeddings encode sequence order information.
+
+Both embeddings are learned during training.
+
+Transformer Blocks
+Each of the 12 transformer blocks contains:
+
+Causal Multi-Head Self-Attention: Allows the model to weigh token importance while preventing information leakage from future tokens.
+
+Feed-Forward Network (FFN): Two-layer MLP with GELU activation that expands the hidden dimension by 4x.
+
+Layer Normalization: Pre-normalization applied before each sub-layer for stable training.
+
+Residual Connections: Skip connections around each sub-layer to facilitate gradient flow in deep networks.
+
+Results and Performance
+
+Pretraining Loss
+
+The training process demonstrates healthy convergence with steady loss reduction over epochs:
+
+<p align="center">
+<img src="loss-plot.png" alt="Training and Validation Loss Curves" width="650"/>
+</p>
+
+Key Observations:
+
+Training loss decreases from approximately 9.5 to below 1.0 over 10 epochs.
+
+Validation loss stabilizes around 6.5, indicating good generalization.
+
+The model processes over 40,000 tokens efficiently.
+
+Clear convergence pattern with diminishing returns after epoch 6.
+
+Fine-Tuning Performance
+
+The fine-tuned spam classification model achieves exceptional results:
+
+Training Accuracy: 100.00%
+
+Validation Accuracy: 97.50%
+
+The model effectively distinguishes between spam and legitimate messages after just a few epochs of fine-tuning, demonstrating the power of transfer learning from the pretrained foundation model.
+
+Text Generation with Temperature Control
+
+Different decoding strategies control the randomness and creativity of generated text:
+
+<p align="center">
+<img src="temperature-plot.png" alt="Temperature Sampling Strategies" width="650"/>
+</p>
+
+Temperature scaling and top-k sampling allow fine-grained control over the balance between coherent, predictable outputs and creative, diverse generations.
+
+Usage
+
+Environment Setup
+
+Install the required dependencies:
+
+pip install torch tiktoken pandas matplotlib tensorflow tqdm
+
+
+
+Download Pretrained Weights
+
+The included script automatically downloads official GPT-2 (124M) weights:
+
 python gpt_download3.py
-```
 
-This script downloads the official GPT-2 weights and adapts them to the custom model architecture.
 
-## Usage
 
-### Training from Scratch
+Training from Scratch
 
-```python
-# Initialize model
-model = GPT2Model(config)
+Execute the notebook to walk through the complete pipeline:
 
-# Train the model
-train_model(model, train_loader, val_loader, num_epochs=10)
-```
+jupyter notebook LLM.tokenizer.ipynb
 
-### Fine-Tuning for Classification
 
-```python
-# Load pretrained weights
+
+The notebook covers:
+
+Data preparation and tokenization
+
+Model architecture implementation
+
+Pretraining on unlabeled text
+
+Fine-tuning for spam classification
+
+Text generation with various decoding strategies
+
+Fine-Tuning for Custom Tasks
+
+Adapt the model for your specific use case:
+
+# Load pretrained model
+model = GPTModel(GPT_CONFIG_124M)
 model.load_state_dict(torch.load('model.pth'))
 
-# Add classification head
-classifier = ClassificationModel(model, num_classes=2)
+# Add custom classification head
+num_classes = your_num_classes
+model.out_head = torch.nn.Linear(
+    in_features=GPT_CONFIG_124M["emb_dim"],
+    out_features=num_classes
+)
 
-# Fine-tune on spam dataset
-finetune_classifier(classifier, spam_train_loader, spam_val_loader)
-```
+# Fine-tune on your dataset
+train_classifier(model, your_train_loader, your_val_loader)
 
-### Generating Text
 
-```python
-# Generate text with the pretrained model
-prompt = "Once upon a time"
-generated_text = generate(model, tokenizer, prompt, max_tokens=100)
-```
 
-## Key Features
+Key Features
 
-- **Complete implementation from scratch**: No reliance on high-level transformer libraries
-- **Modular architecture**: Easy to modify and extend for different applications
-- **Pretrained weight loading**: Compatible with OpenAI's GPT-2 checkpoints
-- **Multi-task fine-tuning**: Supports both classification and generation tasks
-- **Comprehensive training utilities**: Includes learning rate scheduling, gradient clipping, and checkpointing
+Complete Implementation from Scratch: Full transparency into every component of the transformer architecture.
 
-## Results
+Modular and Extensible: Easy to modify for different model sizes and configurations.
 
-The spam classification model achieves strong performance on the SMS Spam Collection dataset:
+Pretrained Weight Compatibility: Seamless loading of OpenAI's GPT-2 checkpoints.
 
-- **Training Loss**: Converges to < 1.0
-- **Validation Performance**: Stable classification accuracy
-- **Inference**: Fast prediction on new messages
+Multi-Task Fine-Tuning: Supports both classification and text generation tasks.
 
-## Requirements
+Parameter-Efficient Training: Selective layer freezing for efficient fine-tuning.
 
-```
-torch>=2.0.0
-numpy>=1.24.0
-pandas>=2.0.0
-matplotlib>=3.7.0
-tiktoken>=0.5.0
-```
+Flexible Text Generation: Multiple decoding strategies including temperature scaling and top-k sampling.
 
-## License
+Production-Ready Code: Includes checkpointing, validation, and comprehensive logging.
+
+Technical Highlights
+
+Component
+
+Description
+
+Benefit
+
+Attention Mechanism
+
+Causal masking and multi-head attention implemented.
+
+Ensures autoregressive generation and captures diverse contextual relationships.
+
+Training Optimization
+
+AdamW optimizer with weight decay and learning rate scheduling.
+
+Better generalization and stable convergence.
+
+Memory Efficiency
+
+Batch processing and gradient clipping implemented.
+
+Allows training with configurable batch sizes and prevents exploding gradients.
+
+Future Enhancements
+
+Implementation of larger model variants (GPT-2 Medium, Large, XL).
+
+Distributed training across multiple GPUs.
+
+Advanced decoding strategies (nucleus sampling, beam search).
+
+Integration with instruction-tuning datasets.
+
+RLHF (Reinforcement Learning from Human Feedback) pipeline.
+
+Model quantization for efficient deployment.
+
+References
+
+Raschka, S., Mirjalili, V., & D'Souza, D. (2024). Build a Large Language Model (from Scratch). Manning.
+
+Vaswani, A., et al. (2017). "Attention Is All You Need"
+
+Radford, A., et al. (2019). "Language Models are Unsupervised Multitask Learners"
+
+Brown, T., et al. (2020). "Language Models are Few-Shot Learners"
+
+SMS Spam Collection dataset contributors
+
+License
 
 This project is licensed under the terms specified in the LICENSE file.
 
-## Acknowledgments
+Acknowledgments
 
-- OpenAI for the GPT-2 architecture and pretrained weights
-- The transformer architecture from "Attention Is All You Need" (Vaswani et al., 2017)
-- SMS Spam Collection dataset for fine-tuning experiments
+OpenAI for the GPT-2 architecture and pretrained weights.
 
-## References
+Sebastian Raschka for the comprehensive book and educational materials.
 
-- Vaswani, A., et al. (2017). "Attention Is All You Need"
-- Radford, A., et al. (2019). "Language Models are Unsupervised Multitask Learners"
-- Brown, T., et al. (2020). "Language Models are Few-Shot Learners"
+The PyTorch team for the excellent deep learning framework.
 
----
-
-## Future Work
-
-- Implement larger model variants (GPT-2 Medium, Large, XL)
-- Add support for distributed training across multiple GPUs
-- Extend fine-tuning to additional downstream tasks
-- Implement more sophisticated sampling strategies for text generation
-- Add support for instruction-following and RLHF
+SMS Spam Collection dataset contributors.
