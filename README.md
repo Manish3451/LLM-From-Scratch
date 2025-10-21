@@ -235,10 +235,10 @@ train_classifier(model, your_train_loader, your_val_loader)
 
 ## 📚 References
 
-* Raschka, S., Mirjalili, V., & D'Souza, D. (2024). *Build a Large Language Model (from Scratch)*. Manning.
+* Vizauara Labs AI 
+* Raschka, S., Mirjalili, V., & D'Souza, D. (2024). *Build a Large Language Model (from Scratch)*. Manning (Reference)
 * Vaswani, A., et al. (2017). *Attention Is All You Need.*
-* Radford, A., et al. (2019). *Language Models are Unsupervised Multitask Learners.*
-* SMS Spam Collection Dataset Contributors.
+* UCI Dataset SMS Spam Collection Dataset Contributors.
 
 ---
 
